@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BF Block Public Library</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --surface-0:#f1f0e8;--surface-1:#f9f8f4;--surface-2:#ffffff;
+  --text-primary:#1a1a18;--text-secondary:#5c5c58;--text-muted:#999890;
+  --border:rgba(0,0,0,0.10);--border-strong:rgba(0,0,0,0.18);
+  --fill-accent:#2563eb;
+  --bg-accent:#eff6ff;--text-accent:#1d4ed8;--border-accent:#93c5fd;
+  --bg-success:#f0fdf4;--text-success:#16a34a;--border-success:#86efac;
+  --bg-danger:#fef2f2;--text-danger:#dc2626;--border-danger:#fca5a5;
+  --bg-warning:#fffbeb;--text-warning:#d97706;--border-warning:#fcd34d;
+  --radius:8px;--font-sans:system-ui,-apple-system,sans-serif;--font-mono:ui-monospace,monospace;
+}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);min-height:100vh}
+.page{display:none;min-height:100vh}
+.page.active{display:flex;flex-direction:column}
+
+/* login */
+.login-bg{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:2rem;position:relative;overflow:hidden}
+.quote-card{position:absolute;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:1.1rem 1.4rem;max-width:260px;backdrop-filter:blur(4px)}
+.quote-card p{font-size:15px;color:rgba(255,255,255,0.85);line-height:1.6;font-style:italic}
+.quote-card span{font-size:13px;color:rgba(255,255,255,0.55);display:block;margin-top:8px}
+.login-box{background:#fff;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;z-index:1}
+.login-logo{text-align:center;margin-bottom:1.75rem}
+.login-icon{width:60px;height:60px;border-radius:16px;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--text-accent);margin:0 auto 0.75rem}
+.login-lib-name{font-size:16px;font-weight:700}
+.login-lib-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px}
+.field input{width:100%;padding:0.55rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111}
+.field input:focus{border-color:var(--fill-accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.field-hint{font-size:11px;color:var(--text-muted);margin-top:4px}
+.login-btn{width:100%;padding:0.7rem;background:var(--fill-accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.25rem}
+.login-btn:hover{background:#1d4ed8}
+.err-box{background:var(--bg-danger);color:var(--text-danger);border:1px solid var(--border-danger);border-radius:var(--radius);padding:0.55rem 0.85rem;font-size:13px;margin-bottom:0.75rem}
+.login-foot{font-size:11px;color:rgba(255,255,255,0.5);margin-top:1.5rem;text-align:center}
+
+/* loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:0.75rem}
+.loading-overlay p{font-size:14px;color:var(--text-secondary)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--fill-accent);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* hero */
+.hero{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;margin-bottom:1.25rem}
+.hero-title{font-size:clamp(26px,5vw,44px);font-weight:700;letter-spacing:-0.5px}
+.hero-sub{font-size:14px;opacity:0.7;margin-top:0.4rem}
+.hero-div{width:50px;height:3px;background:rgba(255,255,255,0.35);border-radius:2px;margin:1.25rem auto}
+.hero-welcome{font-size:13px;opacity:0.85;background:rgba(255,255,255,0.12);display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.2)}
+.cards-section{flex:1;padding:2rem;max-width:900px;margin:0 auto;width:100%}
+.cards-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+@media(max-width:640px){.cards-grid{grid-template-columns:1fr 1fr}}
+.ccard{background:#fff;border:0.5px solid var(--border);border-radius:16px;padding:1.75rem 1.5rem;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;position:relative}
+.ccard:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.10)}
+.ccard-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:1rem}
+.ccard-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.ccard-desc{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.ccard-arr{position:absolute;top:1.1rem;right:1.1rem;font-size:17px;color:var(--text-muted)}
+.ccard:hover .ccard-arr{color:var(--fill-accent)}
+
+/* nav */
+.topnav{display:flex;align-items:center;border-bottom:0.5px solid var(--border);padding:0 1.5rem;background:#fff;position:sticky;top:0;z-index:50}
+.topnav-left{display:flex;align-items:center;flex:1}
+.topnav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-back{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text-secondary);cursor:pointer;padding:0.85rem 0.75rem 0.85rem 0;border-right:0.5px solid var(--border);margin-right:0.75rem}
+.nav-back:hover{color:var(--fill-accent)}
+.nav-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.nav-pill{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700;cursor:pointer;border:0.5px solid var(--border-strong);background:var(--surface-1);color:var(--text-secondary);font-family:inherit}
+.nav-pill:hover{background:var(--fill-accent);color:#fff;border-color:var(--fill-accent)}
+.user-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-secondary);background:var(--surface-1);border:0.5px solid var(--border);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer}
+.user-chip:hover{background:var(--bg-danger);color:var(--text-danger)}
+.uch-av{width:20px;height:20px;border-radius:50%;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text-accent)}
+.section{padding:2rem 1.5rem;max-width:960px;margin:0 auto;width:100%}
+h2{font-size:20px;font-weight:600;margin-bottom:1rem}
+h3{font-size:15px;font-weight:600;margin-bottom:0.75rem}
+.search-wrap{position:relative;margin-bottom:0.75rem}
+.search-wrap i{position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px;pointer-events:none}
+.search-input{width:100%;padding:0.55rem 0.75rem 0.55rem 2.3rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;background:#fff;color:#111;outline:none}
+.search-input:focus{border-color:var(--fill-accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.tcard{background:#fff;border:0.5px solid var(--border);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13px;overflow:visible}
+th{text-align:left;font-weight:500;font-size:12px;color:var(--text-secondary);padding:0.6rem 1rem;border-bottom:0.5px solid var(--border)}
+td{padding:0.65rem 1rem;border-bottom:0.5px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface-1)}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag.paid{background:var(--bg-success);color:var(--text-success)}
+.tag.unpaid{background:var(--bg-danger);color:var(--text-danger)}
+.tag.returned{background:var(--bg-success);color:var(--text-success)}
+.tag.active-loan{background:var(--bg-warning);color:var(--text-warning)}
+.tag.issued{background:var(--bg-danger);color:var(--text-danger)}
+.tag.avail{background:var(--bg-success);color:var(--text-success)}
+.idbadge{display:inline-block;font-family:var(--font-mono);font-size:11px;padding:2px 7px;border-radius:4px;background:var(--surface-0);border:0.5px solid var(--border-strong);color:var(--text-secondary)}
+.av{width:32px;height:32px;border-radius:50%;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-accent);flex-shrink:0}
+.av.lg{width:44px;height:44px;font-size:15px}
+.mlink{font-weight:500;cursor:pointer;border-bottom:1px dashed var(--border-strong)}
+.mlink:hover{color:var(--fill-accent)}
+.dots-wrap{position:relative;display:inline-block}
+.dropdown{position:fixed;background:#fff;border:0.5px solid var(--border);border-radius:10px;min-width:170px;z-index:400;box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden}
+.ddi{display:flex;align-items:center;gap:8px;padding:0.6rem 0.9rem;font-size:13px;cursor:pointer;color:var(--text-primary)}
+.ddi:hover{background:var(--surface-1)}
+.ddi.red{color:var(--text-danger)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.45rem 1rem;font-size:13px;font-weight:500;border:0.5px solid var(--border-strong);border-radius:var(--radius);background:transparent;color:var(--text-primary);cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--surface-1)}
+.btn.pri{background:var(--fill-accent);color:#fff;border-color:var(--fill-accent)}
+.btn.pri:hover{opacity:0.9}
+.btn.dan{background:var(--bg-danger);color:var(--text-danger);border-color:var(--border-danger)}
+.btn.suc{background:var(--bg-success);color:var(--text-success);border-color:var(--border-success)}
+.btn.war{background:var(--bg-warning);color:var(--text-warning);border-color:var(--border-warning)}
+.btn.sm{padding:0.28rem 0.6rem;font-size:12px}
+.iBtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:var(--radius);border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:17px;font-family:inherit}
+.iBtn:hover{background:var(--surface-0);color:var(--text-primary)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:200}
+.ov.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.75rem;width:480px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+.modal input,.modal textarea{width:100%;padding:0.55rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111;display:block}
+.modal input:focus,.modal textarea:focus{border-color:var(--fill-accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.modal-head h3{margin:0}
+.scan-zone{border:1.5px dashed var(--border-strong);border-radius:12px;padding:1.5rem;text-align:center;background:var(--surface-1);margin-bottom:0.75rem}
+.scan-zone.drag{border-color:var(--fill-accent);background:var(--bg-accent)}
+.kbd{display:inline-block;padding:2px 7px;border:0.5px solid var(--border-strong);border-radius:4px;font-size:11px;font-weight:600;background:#fff;font-family:var(--font-mono)}
+.extracted{max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:0.75rem}
+.ex-item{display:flex;align-items:center;gap:8px;padding:0.4rem 0.6rem;border-radius:var(--radius);background:var(--surface-1);font-size:13px}
+.ex-item input[type=checkbox]{width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.divln{display:flex;align-items:center;gap:0.75rem;margin:0.75rem 0;color:var(--text-muted);font-size:12px}
+.divln::before,.divln::after{content:'';flex:1;border-top:0.5px solid var(--border)}
+.brow{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:0.5px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow:hover{background:var(--surface-1)}
+.brow.una{opacity:0.5}
+.irow{display:flex;align-items:center;justify-content:space-between;padding:0.65rem 1rem;border-bottom:0.5px solid var(--border)}
+.irow:last-child{border-bottom:none}
+.irow-title{font-size:13px;font-weight:500}
+.irow-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;display:flex;align-items:center;gap:5px}
+.rrow{display:flex;gap:1.25rem;padding:1.4rem 1.5rem;border-bottom:0.5px solid var(--border)}
+.rrow:last-child{border-bottom:none}
+.rnum{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--border-strong);min-width:32px;padding-top:2px}
+.rtitle{font-size:14px;font-weight:600;margin-bottom:4px}
+.rbody{font-size:13px;color:var(--text-secondary);line-height:1.65}
+.rbody strong{color:var(--text-primary);font-weight:600}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.dcard{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:1.25rem}
+.dcard h3{font-size:14px;margin-bottom:0.85rem;display:flex;align-items:center;gap:6px}
+.empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:13px}
+.full-pg{position:fixed;inset:0;background:var(--surface-0);overflow-y:auto;z-index:100}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.scard{background:var(--surface-1);border-radius:var(--radius);padding:1rem;text-align:center;border:0.5px solid var(--border)}
+.scard .n{font-size:24px;font-weight:600;margin-bottom:2px}
+.scard .l{font-size:12px;color:var(--text-secondary)}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:0.6rem 1.25rem;border-radius:var(--radius);font-size:13px;z-index:500;pointer-events:none;opacity:0;transition:opacity 0.2s}
+.toast.show{opacity:1}
+.footer{text-align:center;padding:1.25rem;font-size:12px;color:var(--text-muted);border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.preview-img{max-width:100%;max-height:120px;border-radius:var(--radius);margin:0 auto 0.75rem;display:block;border:0.5px solid var(--border)}
+.alert{padding:0.6rem 1rem;border-radius:var(--radius);font-size:13px;margin-bottom:0.75rem;border:0.5px solid}
+.alert.err{background:var(--bg-danger);color:var(--text-danger);border-color:var(--border-danger)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading"><div class="spinner"></div><p>Loading library data…</p></div>
+
+<!-- LOGIN -->
+<div class="page active" id="pg-login">
+  <div class="login-bg">
+    <div class="quote-card" style="top:8%;left:18%"><p>"A reader lives a thousand lives before he dies."</p><span>— George R.R. Martin</span></div>
+    <div class="quote-card" style="top:8%;right:18%"><p>"Not all those who wander are lost."</p><span>— J.R.R. Tolkien</span></div>
+    <div class="quote-card" style="top:36%;left:12%;max-width:200px"><p>"So many books, so little time."</p><span>— Frank Zappa</span></div>
+    <div class="quote-card" style="top:36%;right:12%;max-width:200px"><p>"The more that you read, the more things you will know."</p><span>— Dr. Seuss</span></div>
+    <div class="quote-card" style="bottom:20%;left:14%;max-width:210px"><p>"A book is a dream that you hold in your hands."</p><span>— Neil Gaiman</span></div>
+    <div class="quote-card" style="bottom:20%;right:14%;max-width:210px"><p>"Reading is to the mind what exercise is to the body."</p><span>— Joseph Addison</span></div>
+    <div class="quote-card" style="bottom:4%;left:50%;transform:translateX(-50%);max-width:260px;text-align:center"><p>"Libraries are the gardens of the mind."</p><span>— Anonymous</span></div>
+    <div class="login-box">
+      <div class="login-logo">
+        <div class="login-icon"><i class="ti ti-building-library"></i></div>
+        <div class="login-lib-name">BF Block Public Library</div>
+        <div class="login-lib-sub">Salt Lake City, Kolkata</div>
+      </div>
+      <div class="alert err" id="login-err" style="display:none"></div>
+      <div class="field"><label>Your name</label><input type="text" id="li-name" placeholder="Enter your full name" autocomplete="off"></div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="li-pwd" placeholder="Enter your Member ID (e.g. BF/0679)">
+        <div class="field-hint"><i class="ti ti-info-circle"></i> Your password is your Member ID</div>
+      </div>
+      <button class="login-btn" id="li-btn">Sign in</button>
+      <p style="text-align:right;margin-top:0.75rem;font-size:13px;color:var(--text-secondary)">Not a member yet? <span id="go-signup" style="color:var(--fill-accent);font-weight:600;cursor:pointer;text-decoration:underline">Sign up!!</span></p>
+    </div>
+    <div class="login-foot">&copy; <span id="yr1"></span> Saltlake BF Block Public Library</div>
+  </div>
+</div>
+
+<!-- SIGNUP PAGE -->
+<div class="page" id="pg-signup">
+  <div class="login-bg" style="align-items:flex-start;padding:2rem">
+    <div style="width:100%;max-width:500px;margin:0 auto;position:relative;z-index:1">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;cursor:pointer" id="signup-back">
+        <i class="ti ti-arrow-left" style="color:rgba(255,255,255,0.7);font-size:18px"></i>
+        <span style="color:rgba(255,255,255,0.7);font-size:13px">Back to sign in</span>
+      </div>
+      <div style="background:#fff;border-radius:20px;padding:2.5rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+        <div style="text-align:center;margin-bottom:1.75rem">
+          <div style="width:56px;height:56px;border-radius:14px;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--text-accent);margin:0 auto 0.75rem"><i class="ti ti-user-plus"></i></div>
+          <div style="font-size:17px;font-weight:700">Membership application</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:3px">BF Block Public Library</div>
+        </div>
+        <div class="alert err" id="signup-err" style="display:none"></div>
+        <div class="alert" id="signup-success" style="display:none;background:var(--bg-success);color:var(--text-success);border-color:var(--border-success)"></div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">1. What is your name?</label>
+          <input type="text" id="su-name" placeholder="Enter your full name" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">2. Please share your age</label>
+          <input type="number" id="su-age" placeholder="e.g. 25" min="1" max="120" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:8px">3. Do you live in BF Block?</label>
+          <div style="display:flex;gap:1rem">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;padding:0.6rem 1rem;border:1px solid #d1d5db;border-radius:var(--radius);flex:1;transition:border-color 0.1s" id="su-bf-yes-lbl">
+              <input type="radio" name="su-bf" id="su-bf-yes" value="yes" style="width:16px;height:16px"> Yes
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;padding:0.6rem 1rem;border:1px solid #d1d5db;border-radius:var(--radius);flex:1;transition:border-color 0.1s" id="su-bf-no-lbl">
+              <input type="radio" name="su-bf" id="su-bf-no" value="no" style="width:16px;height:16px"> No
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.75rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">4. Address</label>
+          <input type="text" id="su-address" placeholder="Enter your full address" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <button id="su-submit" style="width:100%;padding:0.75rem;background:var(--fill-accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+          <i class="ti ti-send"></i> Ask for membership status approval from Admin
+        </button>
+      </div>
+    </div>
+    <div class="login-foot" style="width:100%">&copy; <span id="yr3"></span> Saltlake BF Block Public Library</div>
+  </div>
+</div>
+
+<!-- COVER -->
+<div class="page" id="pg-cover">
+  <div class="hero">
+    <div class="hero-badge"><i class="ti ti-building-library"></i> Library Management System</div>
+    <div class="hero-title">BF Block Public Library</div>
+    <div class="hero-sub">Salt Lake City, Kolkata</div>
+    <div class="hero-div"></div>
+    <div class="hero-welcome" id="cover-welcome"></div>
+  </div>
+  <div class="cards-section"><div class="cards-label">Select a section</div><div class="cards-grid" id="cards-grid"></div></div>
+  <div class="footer"><span>&copy; <span id="yr2"></span> Saltlake BF Block Public Library</span><button class="btn dan sm" id="cover-logout"><i class="ti ti-logout"></i> Sign out</button></div>
+</div>
+
+<!-- BOOKS -->
+<div class="page" id="pg-books">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="books-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-books"></i> Book Catalog</span></div>
+    <div class="topnav-right"><button class="nav-pill" id="books-scan-btn" title="Scan to add books">S</button><div class="user-chip" id="books-logout"><div class="uch-av" id="books-chip-av"></div><span id="books-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-books"></i> Book Catalog</h2>
+    <div class="search-wrap" style="margin-bottom:0.75rem"><i class="ti ti-search"></i><input class="search-input" id="book-search" type="text" placeholder="Search by title, author or ID..."></div>
+    <div style="display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1rem">
+      <button class="lang-tab active" data-lang="all">All books</button>
+      <button class="lang-tab" data-lang="bengali"><i class="ti ti-letter-b"></i> Bengali</button>
+      <button class="lang-tab" data-lang="english"><i class="ti ti-letter-e"></i> English</button>
+      <button class="lang-tab" data-lang="hindi"><i class="ti ti-letter-h"></i> Hindi</button>
+    </div>
+    <div class="tcard"><table><thead><tr><th>Book ID</th><th>Title</th><th>Author</th><th>Status</th><th></th></tr></thead><tbody id="book-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- MEMBERS -->
+<div class="page" id="pg-members">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="members-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-users"></i> Members</span></div>
+    <div class="topnav-right"><button class="nav-pill" id="members-scan-btn" title="Scan to add members">S</button><button class="nav-pill" id="members-pay-btn" title="Payment status">P</button><div class="user-chip" id="members-logout"><div class="uch-av" id="members-chip-av"></div><span id="members-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-users"></i> Members</h2>
+    <div class="search-wrap" style="margin-bottom:0.75rem"><i class="ti ti-search"></i><input class="search-input" id="member-search" type="text" placeholder="Search by name or member ID..."></div>
+    <div style="display:flex;gap:0;border-bottom:0.5px solid var(--border);margin-bottom:1rem">
+      <button class="lang-tab active" data-mtype="all">All members</button>
+      <button class="lang-tab" data-mtype="bfite"><i class="ti ti-home"></i> BFites</button>
+      <button class="lang-tab" data-mtype="nonbfite"><i class="ti ti-map-pin"></i> Non-BFites</button>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:0.75rem"><i class="ti ti-info-circle"></i> Click a member's name to issue a book</p>
+    <div class="tcard"><table><thead><tr><th>Member ID</th><th>Name</th><th>Age</th><th>Address</th><th>Books (last year)</th><th></th></tr></thead><tbody id="member-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="pg-dashboard">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="dash-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-layout-dashboard"></i> My Dashboard</span></div>
+    <div class="topnav-right"><div class="user-chip" id="dash-logout"><div class="uch-av" id="dash-chip-av"></div><span id="dash-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section" id="dash-content"></div>
+</div>
+
+<!-- RULES -->
+<div class="page" id="pg-rules">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="rules-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-book-2"></i> Library Rules</span></div>
+    <div class="topnav-right"><div class="user-chip" id="rules-logout"><div class="uch-av" id="rules-chip-av"></div><span id="rules-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-book-2"></i> Library Rules</h2>
+    <div class="tcard">
+      <div class="rrow"><div class="rnum">01</div><div><div class="rtitle">Annual subscription fee</div><div class="rbody">Members are required to pay <strong>&#8377;500</strong> as a yearly subscription fee to maintain active membership.</div></div></div>
+      <div class="rrow"><div class="rnum">02</div><div><div class="rtitle">Subscription deadline</div><div class="rbody">The subscription must be paid by the <strong>end of January</strong> of the ongoing year. Failure to do so may result in loss of membership.</div></div></div>
+      <div class="rrow"><div class="rnum">03</div><div><div class="rtitle">Book issuance period</div><div class="rbody">The maximum issuance period for any book is <strong>2 weeks</strong> from the date of issue. Books must be returned within this time.</div></div></div>
+      <div class="rrow"><div class="rnum">04</div><div><div class="rtitle">Freedom to issue</div><div class="rbody">Members are free to issue <strong>any book</strong> available in the library catalog, subject to availability.</div></div></div>
+      <div class="rrow"><div class="rnum">05</div><div><div class="rtitle">Book collection after approval</div><div class="rbody">Once a book request is approved by the admin, the member must collect the book by the <strong>next Tuesday between 7:00 PM and 8:00 PM</strong>. Failure to collect within this window will result in the approval being cancelled and the book becoming available for others.</div></div></div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:1rem;text-align:center">These rules are set by the library administration and are subject to change.</p>
+  </div>
+</div>
+
+<!-- MEMBERSHIP APPLICATIONS PAGE -->
+<div class="page" id="pg-mem-apps">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="memapp-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-user-plus"></i> Membership Applications</span></div>
+    <div class="topnav-right"><div class="user-chip" id="memapp-logout"><div class="uch-av">AD</div>Admin <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-user-plus"></i> Membership Applications</h2>
+    <div class="tcard" style="margin-bottom:1.25rem">
+      <table><thead><tr><th>Name</th><th>Age</th><th>BF Block?</th><th>Address</th><th>Applied on</th><th>Action</th></tr></thead>
+      <tbody id="memapp-pending-tbody"></tbody></table>
+    </div>
+    <h3 style="margin-bottom:0.5rem;color:var(--text-secondary)"><i class="ti ti-history"></i> Past applications</h3>
+    <div class="tcard">
+      <table><thead><tr><th>Name</th><th>Age</th><th>Address</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="memapp-history-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- REQUESTS PAGE -->
+<div class="page" id="pg-requests">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="req-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-bell"></i> Book Requests</span></div>
+    <div class="topnav-right"><div class="user-chip" id="req-logout"><div class="uch-av">AD</div>Admin <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-bell"></i> Book Requests</h2>
+    <div class="tcard" id="req-pending-card" style="margin-bottom:1.25rem">
+      <table><thead><tr><th>Member</th><th>Book</th><th>Requested on</th><th>Action</th></tr></thead>
+      <tbody id="req-pending-tbody"></tbody></table>
+    </div>
+    <h3 style="margin-bottom:0.5rem;color:var(--text-secondary)"><i class="ti ti-history"></i> Past requests</h3>
+    <div class="tcard">
+      <table><thead><tr><th>Member</th><th>Book</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="req-history-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- EDIT BOOK MODAL -->
+<div class="ov" id="ov-edit-book">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><h3><i class="ti ti-edit"></i> Edit book details</h3><button class="iBtn" id="edit-book-close"><i class="ti ti-x"></i></button></div>
+    <div class="field"><label>Title</label><input type="text" id="edit-b-title" placeholder="Book title"></div>
+    <div class="field"><label>Author</label><input type="text" id="edit-b-author" placeholder="Author name"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+      <div class="field" style="margin:0"><label>Year</label><input type="text" id="edit-b-year" placeholder="e.g. 2008"></div>
+      <div class="field" style="margin:0"><label>Language</label>
+        <select id="edit-b-lang" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111">
+          <option value="english">English</option>
+          <option value="bengali">Bengali</option>
+          <option value="hindi">Hindi</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Book ID</label><input type="text" id="edit-b-id" disabled style="background:var(--surface-1);color:var(--text-muted)"></div>
+    <div class="alert err" id="edit-b-err" style="display:none"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn" id="edit-b-cancel">Cancel</button>
+      <button class="btn pri" id="edit-b-save"><i class="ti ti-check"></i> Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MEMBER MODAL -->
+<div class="ov" id="ov-edit-member">
+  <div class="modal" style="width:400px">
+    <div class="modal-head"><h3><i class="ti ti-edit"></i> Edit member</h3><button class="iBtn" id="edit-member-close"><i class="ti ti-x"></i></button></div>
+    <div class="field"><label>Name</label><input type="text" id="edit-m-name" placeholder="Full name"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+      <div class="field" style="margin:0"><label>Age</label><input type="text" id="edit-m-age" placeholder="e.g. 25"></div>
+      <div class="field" style="margin:0"><label>Member ID</label><input type="text" id="edit-m-id" placeholder="BF-0679" disabled style="background:var(--surface-1);color:var(--text-muted)"></div>
+    </div>
+    <div class="field"><label>Address</label><input type="text" id="edit-m-address" placeholder="e.g. BF Block, Salt Lake"></div>
+    <div class="alert err" id="edit-m-err" style="display:none"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn" id="edit-m-cancel">Cancel</button>
+      <button class="btn pri" id="edit-m-save"><i class="ti ti-check"></i> Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PASSWORD MODAL -->
+<div class="ov" id="ov-pwd">
+  <div class="modal" style="width:360px">
+    <div class="modal-head"><h3><i class="ti ti-lock"></i> Admin access required</h3><button class="iBtn" id="pwd-close"><i class="ti ti-x"></i></button></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1rem">Hi admin, please enter the password to continue.</p>
+    <div class="alert err" id="pwd-err" style="display:none"></div>
+    <input type="password" id="pwd-inp" placeholder="Enter admin password" style="margin-bottom:1rem">
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end"><button class="btn" id="pwd-cancel">Cancel</button><button class="btn pri" id="pwd-submit">Unlock</button></div>
+  </div>
+</div>
+
+<!-- ISSUE BOOK MODAL -->
+<div class="ov" id="ov-issue">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:10px"><div class="av lg" id="issue-av"></div><div><div style="font-size:15px;font-weight:600" id="issue-name"></div><div style="margin-top:3px"><span class="idbadge" id="issue-id"></span></div></div></div>
+      <button class="iBtn" id="issue-close"><i class="ti ti-x"></i></button>
+    </div>
+    <h3 style="margin-bottom:0.5rem"><i class="ti ti-books"></i> Issue a book</h3>
+    <input type="text" id="issue-search" placeholder="Search by title, author or ID..." style="margin-bottom:0.75rem">
+    <div class="tcard" id="issue-book-list" style="max-height:220px;overflow-y:auto"></div>
+    <h3 style="margin-top:1.25rem;margin-bottom:0.5rem"><i class="ti ti-clock"></i> Currently issued</h3>
+    <div id="issue-current"></div>
+  </div>
+</div>
+
+<!-- SCAN MODAL -->
+<div class="ov" id="ov-scan">
+  <div class="modal">
+    <div class="modal-head"><h3 id="scan-title"><i class="ti ti-scan"></i></h3><button class="iBtn" id="scan-close"><i class="ti ti-x"></i></button></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1rem" id="scan-hint"></p>
+    <div id="scan-idle">
+      <div class="scan-zone" id="scan-zone">
+        <i class="ti ti-clipboard" style="font-size:32px;color:var(--text-muted)"></i>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:0.5rem"><span class="kbd">Ctrl</span><span style="font-size:12px;color:var(--text-muted)">+</span><span class="kbd">V</span><span style="font-size:13px;color:var(--text-secondary)">to paste a screenshot</span></div>
+        <p style="font-size:12px;margin-top:6px;color:var(--text-secondary)">or drag &amp; drop / <label for="scan-file" style="color:var(--text-accent);cursor:pointer;text-decoration:underline">browse file</label></p>
+        <input type="file" id="scan-file" accept="image/*" style="display:none">
+      </div>
+      <div class="divln">or type manually</div>
+      <div id="scan-book-fields">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem">
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Title</label><input type="text" id="scan-m-title" placeholder="e.g. Clean Code" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Author</label><input type="text" id="scan-m-author" placeholder="e.g. Robert C. Martin" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Year</label><input type="text" id="scan-m-year" placeholder="e.g. 2008" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Language</label>
+            <select id="scan-m-lang" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111">
+              <option value="english">English</option>
+              <option value="bengali">Bengali</option>
+              <option value="hindi">Hindi</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="scan-member-fields" style="display:none;margin-bottom:0.5rem">
+        <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Member name</label><input type="text" id="scan-m-name" placeholder="e.g. Arjun Sharma" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+      </div>
+      <div id="scan-payupdate-fields" style="display:none;margin-bottom:0.5rem">
+        <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Member name</label><input type="text" id="scan-m-payname" placeholder="e.g. Priya Mehta" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+      </div>
+      <button class="btn pri" id="scan-manual-add" style="width:100%;margin-top:0.25rem"><i class="ti ti-plus"></i> Add entry</button>
+    </div>
+    <div id="scan-scanning" style="display:none;text-align:center;padding:1.5rem">
+      <img id="scan-preview" style="max-height:110px;border-radius:var(--radius);margin-bottom:0.75rem;border:0.5px solid var(--border)">
+      <p style="font-size:13px;color:var(--text-secondary)"><i class="ti ti-loader"></i> Scanning with OCR…</p>
+    </div>
+    <div id="scan-done" style="display:none">
+      <img id="scan-preview2" style="max-height:110px;border-radius:var(--radius);margin-bottom:0.75rem;border:0.5px solid var(--border);display:block;margin-left:auto;margin-right:auto">
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:0.4rem">Select items to add:</p>
+      <div class="extracted" id="scan-results"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:1rem">
+        <button class="btn" id="scan-again"><i class="ti ti-arrow-left"></i> Paste again</button>
+        <button class="btn pri" id="scan-confirm"><i class="ti ti-check"></i> Add selected</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT PAGE -->
+<div class="full-pg" id="pg-payment" style="display:none">
+  <div style="padding:2rem 1.5rem;max-width:860px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <div><h2 style="margin-bottom:3px"><i class="ti ti-credit-card"></i> Annual subscription status</h2><p style="font-size:13px;color:var(--text-secondary)">Admin view</p></div>
+      <div style="display:flex;gap:0.75rem"><button class="btn" id="pay-scan"><i class="ti ti-scan"></i> Scan to mark paid</button><button class="btn dan" id="pay-close"><i class="ti ti-x"></i> Close</button></div>
+    </div>
+    <div class="g2" id="pay-stats"></div>
+    <h3 style="color:var(--text-danger);margin-bottom:0.5rem"><i class="ti ti-alert-circle"></i> Payment pending</h3>
+    <div class="tcard" style="margin-bottom:1.25rem"><table><thead><tr><th>Member ID</th><th>Name</th><th>Action</th></tr></thead><tbody id="pay-unpaid"></tbody></table></div>
+    <h3 style="color:var(--text-success);margin-bottom:0.5rem"><i class="ti ti-circle-check"></i> Paid members</h3>
+    <div class="tcard"><table><thead><tr><th>Member ID</th><th>Name</th><th>Status</th></tr></thead><tbody id="pay-paid"></tbody></table></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAFhmXBSvA7282fXz-y_zXlFK-o4yek1hM",
+  authDomain: "library-368b4.firebaseapp.com",
+  projectId: "library-368b4",
+  storageBucket: "library-368b4.firebasestorage.app",
+  messagingSenderId: "946066332984",
+  appId: "1:946066332984:web:f93a7730a21612546975cd"
+};
+
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+var ADMIN_PWD = "adminBF";
+var thisYear  = new Date().getFullYear();
+
+function ini(n){ return (n||"?").split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2); }
+function fmt(iso){ return new Date(iso).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}); }
+function td(){ return new Date().toISOString().split("T")[0]; }
+function inYear(iso){ var c=new Date(); c.setFullYear(c.getFullYear()-1); return new Date(iso)>=c; }
+function nextTuesday(){
+  var d=new Date();
+  var day=d.getDay(); // 0=Sun,1=Mon,2=Tue...
+  var diff=day<=2?(2-day):(9-day); // days until next Tuesday
+  if(diff===0) diff=7; // if today is Tuesday, next Tuesday
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().split("T")[0];
+}
+function isPastCollectionDeadline(collectBy){
+  return new Date() > new Date(collectBy);
+}
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){t.classList.remove("show");},2500); }
+function loading(show){ document.getElementById("loading").style.display = show ? "flex" : "none"; }
+
+// ── Local cache ────────────────────────────────────────────────────────────────
+var BOOKS   = [];   // [{id, title, author, year}, ...]
+var MEMBERS = [];   // [{id, name, paid, paidYear, books:[{bid,title,issuedOn,ret}]}, ...]
+var REQUESTS = [];  // [{id, memberId, memberName, bookId, bookTitle, status, createdOn}]
+var MEM_APPS = [];  // membership applications [{id, name, age, livesInBF, address, status, createdOn}]
+
+function issuedTo(bid){
+  for(var i=0;i<MEMBERS.length;i++){var m=MEMBERS[i];for(var j=0;j<m.books.length;j++){if(m.books[j].bid===bid&&!m.books[j].ret)return m.name;}} return null;
+}
+function isBlockedFor(bid){
+  // returns member name if book is approved-blocked but not yet collected (and deadline not passed)
+  for(var i=0;i<REQUESTS.length;i++){
+    var r=REQUESTS[i];
+    if(r.bookId===bid && r.status==="approved" && !r.collected){
+      if(!isPastCollectionDeadline(r.collectBy)) return r.memberName;
+      // deadline passed — auto-expire the block
+    }
+  }
+  return null;
+}
+async function expireOldBlocks(){
+  // called on load — remove approvals that weren't collected by Tuesday
+  for(var i=0;i<REQUESTS.length;i++){
+    var r=REQUESTS[i];
+    if(r.status==="approved" && !r.collected && r.collectBy && isPastCollectionDeadline(r.collectBy)){
+      r.status="expired";
+      await updateRequest(r);
+    }
+  }
+  saveToLocal();
+}
+
+// ── Firestore helpers ──────────────────────────────────────────────────────────
+async function saveBook(book){
+  try{ await db.collection("books").doc(book.id).set({title:book.title,author:book.author,year:book.year,lang:book.lang||"english"}); console.log("Book saved:",book.id); }
+  catch(e){ console.error("saveBook:",e); alert("Error saving book: "+e.message); throw e; }
+}
+async function deleteBook(id){
+  try{ await db.collection("books").doc(id).delete(); } catch(e){ console.error(e); }
+}
+async function saveMember(m){
+  try{ await db.collection("members").doc(m.id).set({name:m.name,age:m.age||null,address:m.address||"",paid:m.paid,paidYear:m.paidYear||null,books:m.books}); console.log("Member saved:",m.id); }
+  catch(e){ console.error("saveMember:",e); alert("Error saving member: "+e.message); throw e; }
+}
+async function deleteMember(id){
+  try{ await db.collection("members").doc(id).delete(); } catch(e){ console.error(e); }
+}
+async function updateMember(m){
+  try{ await db.collection("members").doc(m.id).set({name:m.name,age:m.age||null,address:m.address||"",paid:m.paid,paidYear:m.paidYear||null,books:m.books}); }
+  catch(e){ console.error("updateMember:",e); alert("Error updating: "+e.message); throw e; }
+}
+async function saveRequest(r){
+  try{ await db.collection("requests").doc(r.id).set(r); }
+  catch(e){ console.error("saveRequest:",e); alert("Error saving request: "+e.message); throw e; }
+}
+async function saveMemberApp(a){
+  try{ await db.collection("mem_apps").doc(a.id).set(a); }
+  catch(e){ console.error("saveMemberApp:",e); alert("Error submitting application: "+e.message); throw e; }
+}
+async function updateMemberApp(a){
+  try{ await db.collection("mem_apps").doc(a.id).set(a); }
+  catch(e){ console.error(e); }
+}
+async function updateRequest(r){
+  try{ await db.collection("requests").doc(r.id).set(r); }
+  catch(e){ console.error("updateRequest:",e); }
+}
+async function deleteRequest(id){
+  try{ await db.collection("requests").doc(id).delete(); }
+  catch(e){ console.error("deleteRequest:",e); }
+}
+
+// ── Load all data from Firestore ───────────────────────────────────────────────
+function saveToLocal(){
+  try{
+    localStorage.setItem("bf_books", JSON.stringify(BOOKS));
+    localStorage.setItem("bf_members", JSON.stringify(MEMBERS));
+    localStorage.setItem("bf_requests", JSON.stringify(REQUESTS));
+    localStorage.setItem("bf_mem_apps", JSON.stringify(MEM_APPS));
+  } catch(e){}
+}
+function loadFromLocal(){
+  try{
+    var b = localStorage.getItem("bf_books");
+    var m = localStorage.getItem("bf_members");
+    var r = localStorage.getItem("bf_requests");
+    var a = localStorage.getItem("bf_mem_apps");
+    if(b) BOOKS = JSON.parse(b);
+    if(m) MEMBERS = JSON.parse(m);
+    if(r) REQUESTS = JSON.parse(r);
+    if(a) MEM_APPS = JSON.parse(a);
+    return !!(b||m);
+  } catch(e){ return false; }
+}
+
+async function loadData(){
+  loading(true);
+  // Show cached data instantly while Firebase loads
+  var hadLocal = loadFromLocal();
+  if(hadLocal){ loading(false); }
+
+  try {
+    var bSnap = await db.collection("books").get();
+    BOOKS = [];
+    bSnap.forEach(function(d){ BOOKS.push(Object.assign({id:d.id}, d.data())); });
+
+    var mSnap = await db.collection("members").get();
+    MEMBERS = [];
+    mSnap.forEach(function(d){
+      var m = Object.assign({id:d.id}, d.data());
+      if(!m.books) m.books = [];
+      if(m.paid && m.paidYear && m.paidYear < thisYear){
+        m.paid = false; m.paidYear = null;
+        updateMember(m);
+      }
+      MEMBERS.push(m);
+    });
+    var rSnap = await db.collection("requests").get();
+    REQUESTS = [];
+    rSnap.forEach(function(d){ REQUESTS.push(Object.assign({id:d.id}, d.data())); });
+
+    var aSnap = await db.collection("mem_apps").get();
+    MEM_APPS = [];
+    aSnap.forEach(function(d){ MEM_APPS.push(Object.assign({id:d.id}, d.data())); });
+    saveToLocal();
+    await expireOldBlocks();
+  } catch(e){ console.error(e); toast("Error loading from Firebase. Showing cached data."); }
+  loading(false);
+}
+
+// ── ID generators ──────────────────────────────────────────────────────────────
+function nextMemberId(){
+  if(!MEMBERS.length) return "BF-0679";
+  var nums = MEMBERS.map(function(m){ return parseInt(m.id.replace(/BF[-\/]/,""))||0; });
+  return "BF-"+String(Math.max.apply(null,nums)+1).padStart(4,"0");
+}
+function nextBookId(author){
+  var last=(author.split(" ").pop()||"UNK").replace(/[^a-zA-Z]/g,"").slice(0,3).toUpperCase();
+  var nums = BOOKS.map(function(b){ return parseInt(b.id.split("-")[1])||0; });
+  var next = nums.length ? Math.max.apply(null,nums)+1 : 700;
+  return "BF-"+String(next).padStart(4,"0")+"-"+last;
+}
+
+// ── Pages ──────────────────────────────────────────────────────────────────────
+document.getElementById("yr1").textContent = thisYear;
+document.getElementById("yr2").textContent = thisYear;
+
+var session = { member: null };
+var pendingAction = null;
+var activeScanType = null;
+var scanBookLang = "english";
+var activeLang = "all";
+var activeMemberType = "all";
+var activeIssueId = null;
+var openDropdown = null;
+
+function showPage(id){ document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");}); document.getElementById(id).classList.add("active"); }
+function goHome(){ showPage("pg-cover"); }
+function logout(){ session.member=null; showPage("pg-login"); document.getElementById("li-name").value=""; document.getElementById("li-pwd").value=""; document.getElementById("login-err").style.display="none"; }
+
+function updateChips(){
+  var name=session.member?session.member.name:"Admin";
+  var av=session.member?ini(session.member.name):"AD";
+  ["books","members","dash","rules"].forEach(function(pg){
+    var an=document.getElementById(pg+"-chip-av"); var nn=document.getElementById(pg+"-chip-name");
+    if(an)an.textContent=av; if(nn)nn.textContent=name;
+  });
+}
+
+// ── Login ──────────────────────────────────────────────────────────────────────
+document.getElementById("li-btn").addEventListener("click", doLogin);
+document.getElementById("li-pwd").addEventListener("keydown", function(e){ if(e.key==="Enter") doLogin(); });
+
+function doLogin(){
+  var name=document.getElementById("li-name").value.trim();
+  var pwd=document.getElementById("li-pwd").value.trim();
+  var err=document.getElementById("login-err"); err.style.display="none";
+  if(!name){err.textContent="Please enter your name.";err.style.display="block";return;}
+  if(!pwd){err.textContent="Please enter your password.";err.style.display="block";return;}
+  if(pwd===ADMIN_PWD){session.member=null;updateChips();buildCover();showPage("pg-cover");return;}
+  var pwdUp=pwd.toUpperCase();
+  var found=null;
+  for(var i=0;i<MEMBERS.length;i++){if(MEMBERS[i].id.toUpperCase()===pwdUp){found=MEMBERS[i];break;}}
+  if(!found){err.textContent="Member ID not found.";err.style.display="block";return;}
+  if(found.name.toLowerCase()!==name.toLowerCase()){err.textContent="Name does not match this Member ID.";err.style.display="block";return;}
+  session.member=found;updateChips();buildCover();showPage("pg-cover");
+}
+
+// ── Cover ──────────────────────────────────────────────────────────────────────
+function buildCover(){
+  var isAdmin=!session.member;
+  document.getElementById("cover-welcome").innerHTML='<i class="ti ti-user-check"></i> '+(isAdmin?"Welcome, Admin":"Welcome, "+session.member.name);
+  var grid=document.getElementById("cards-grid"); grid.innerHTML="";
+  var pendingCount = REQUESTS.filter(function(r){return r.status==="pending";}).length;
+  var cards=[
+    {pg:"pg-books",  color:"var(--bg-accent)", ico:"var(--text-accent)", icon:"ti-books",           title:"Book Catalog",  desc:"Browse all books and check availability."},
+    {pg:"pg-members",color:"var(--bg-success)",ico:"var(--text-success)",icon:"ti-users",            title:"Members",       desc:"View members and borrowing history."},
+    {pg:"pg-rules",  color:"var(--bg-warning)", ico:"var(--text-warning)",icon:"ti-book-2",           title:"Library Rules", desc:"Subscription fees and borrowing policy."},
+  ];
+  var pendingApps=MEM_APPS.filter(function(a){return a.status==="pending";}).length;
+  if(isAdmin) cards.splice(2,0,{pg:"pg-requests",color:"var(--bg-danger)",ico:"var(--text-danger)",icon:"ti-bell",title:"Book Requests"+(pendingCount?" ("+pendingCount+")":""),desc:pendingCount>0?pendingCount+" pending request"+(pendingCount!==1?"s":"")+" awaiting approval.":"No pending requests."});
+  if(isAdmin) cards.push({pg:"pg-mem-apps",color:"var(--bg-accent)",ico:"var(--text-accent)",icon:"ti-user-plus",title:"Membership Applications"+(pendingApps?" ("+pendingApps+")":""),desc:pendingApps>0?pendingApps+" application"+(pendingApps!==1?"s":"")+" awaiting review.":"No pending applications at the moment."});
+  if(!isAdmin) cards.splice(1,0,{pg:"pg-dashboard",color:"var(--bg-accent)",ico:"var(--text-accent)",icon:"ti-layout-dashboard",title:"My Dashboard",desc:"Your issued books and payment status."});
+  cards.forEach(function(c){
+    var d=document.createElement("div"); d.className="ccard";
+    d.innerHTML='<div class="ccard-icon" style="background:'+c.color+';color:'+c.ico+'"><i class="ti '+c.icon+'"></i></div><div class="ccard-title">'+c.title+'</div><div class="ccard-desc">'+c.desc+'</div><i class="ti ti-arrow-right ccard-arr"></i>';
+    d.addEventListener("click",function(){
+      if(c.pg==="pg-books"){activeLang="all";document.querySelectorAll(".lang-tab").forEach(function(t){t.classList.remove("active");var el=document.querySelector(".lang-tab[data-lang='all']");if(el)el.classList.add("active");});buildBookRows("");showPage("pg-books");}
+      else if(c.pg==="pg-members"){activeMemberType="all";document.querySelectorAll("[data-mtype]").forEach(function(t){t.classList.remove("active");var el=document.querySelector("[data-mtype='all']");if(el)el.classList.add("active");});buildMemberRows("");showPage("pg-members");}
+      else if(c.pg==="pg-dashboard"){buildDash();showPage("pg-dashboard");}
+      else if(c.pg==="pg-requests"){buildRequests();showPage("pg-requests");}
+      else if(c.pg==="pg-mem-apps"){buildMemApps();showPage("pg-mem-apps");}
+      else showPage("pg-rules");
+    });
+    grid.appendChild(d);
+  });
+}
+document.getElementById("cover-logout").addEventListener("click",logout);
+
+// ── Books ──────────────────────────────────────────────────────────────────────
+document.getElementById("books-back").addEventListener("click",goHome);
+document.addEventListener("click",function(e){
+  if(e.target.closest("[data-mtype]")){
+    var btn=e.target.closest("[data-mtype]");
+    document.querySelectorAll("[data-mtype]").forEach(function(t){t.classList.remove("active");});
+    btn.classList.add("active");
+    activeMemberType=btn.dataset.mtype;
+    buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+  }
+});
+document.addEventListener("click",function(e){
+  if(e.target.closest(".lang-tab")){
+    var btn=e.target.closest(".lang-tab");
+    document.querySelectorAll(".lang-tab").forEach(function(t){t.classList.remove("active");});
+    btn.classList.add("active");
+    activeLang=btn.dataset.lang;
+    buildBookRows(document.getElementById("book-search").value.toLowerCase());
+  }
+});
+document.getElementById("books-logout").addEventListener("click",logout);
+document.getElementById("books-scan-btn").addEventListener("click",function(){openPwd("scan-book");});
+document.getElementById("book-search").addEventListener("input",function(){buildBookRows(this.value.toLowerCase());});
+
+function buildBookRows(f){
+  var tbody=document.getElementById("book-tbody"); tbody.innerHTML="";
+  var baseList=activeLang==="all"?BOOKS:BOOKS.filter(function(b){return (b.lang||"english")===activeLang;});
+  var list=f?baseList.filter(function(b){return b.title.toLowerCase().indexOf(f)!==-1||b.author.toLowerCase().indexOf(f)!==-1||b.id.toLowerCase().indexOf(f)!==-1;}):baseList;
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" class="empty">'+(f?"No books match.":"No books yet.")+'</td></tr>';return;}
+  var isAdmin=!session.member;
+  list.forEach(function(b){
+    var it=issuedTo(b.id);
+    var blocked=isBlockedFor(b.id);
+    var st=it?'<span class="tag issued"><i class="ti ti-lock"></i> Issued</span><div style="font-size:11px;color:var(--text-muted);margin-top:3px">to: '+it+'</div>'
+            :blocked?'<span class="tag active-loan"><i class="ti ti-calendar-due"></i> Blocked</span><div style="font-size:11px;color:var(--text-muted);margin-top:3px">for: '+blocked+'</div>'
+            :'<span class="tag avail"><i class="ti ti-check"></i> Available</span>';
+    var action="";
+    if(isAdmin){
+      action='<div class="dots-wrap"><button class="iBtn book-dd-btn" data-bid="'+b.id+'"><i class="ti ti-dots-vertical"></i></button></div>';
+    } else {
+      var alreadyRequested=REQUESTS.some(function(r){return r.bookId===b.id&&r.memberId===session.member.id&&r.status==="pending";});
+      var myApproved=REQUESTS.some(function(r){return r.bookId===b.id&&r.memberId===session.member.id&&r.status==="approved"&&!r.collected;});
+      var alreadyIssued=it===session.member.name;
+      if(alreadyIssued){
+        action='<span class="tag returned" style="font-size:11px">You have this</span>';
+      } else if(myApproved){
+        // find collectBy date
+        var myReq=REQUESTS.filter(function(r){return r.bookId===b.id&&r.memberId===session.member.id&&r.status==="approved"&&!r.collected;})[0];
+        action='<span class="tag avail" style="font-size:11px"><i class="ti ti-check"></i> Approved — collect by next Tuesday (7–8 PM)</span>';
+      } else if(alreadyRequested){
+        action='<span class="tag active-loan" style="font-size:11px"><i class="ti ti-clock"></i> Requested</span>';
+      } else if(!it && !blocked){
+        action='<button class="btn pri sm" data-req="'+b.id+'" data-req-title="'+b.title.replace(/"/g,"&quot;")+'"><i class="ti ti-send"></i> Request</button>';
+      }
+    }
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><span class="idbadge">'+b.id+'</span></td><td style="font-weight:500">'+b.title+'</td><td style="color:var(--text-secondary)">'+b.author+'</td><td>'+st+'</td><td>'+action+'</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".book-dd-btn").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.stopPropagation();
+      document.querySelectorAll(".dropdown").forEach(function(d){d.remove();});
+      var bid=btn.dataset.bid;
+      var book=BOOKS.filter(function(b){return b.id===bid;})[0]; if(!book) return;
+      var dd=document.createElement("div"); dd.className="dropdown";
+      dd.innerHTML='<div class="ddi" data-view-book="'+bid+'"><i class="ti ti-users"></i> Members issued by</div>'
+        +'<div class="ddi" data-edit-book="'+bid+'"><i class="ti ti-edit"></i> Edit book details</div>'
+        +'<div class="ddi red" data-del-book="'+bid+'"><i class="ti ti-trash"></i> Remove book</div>';
+      document.body.appendChild(dd);
+      var rect=btn.getBoundingClientRect();
+      var ddH=dd.offsetHeight||120;
+      var spaceBelow=window.innerHeight-rect.bottom;
+      dd.style.left=(rect.right-190)+"px";
+      if(spaceBelow<ddH) dd.style.top=(rect.top-ddH+window.scrollY)+"px";
+      else dd.style.top=(rect.bottom+window.scrollY+4)+"px";
+      dd.querySelector("[data-view-book]").addEventListener("click",function(e2){e2.stopPropagation();openBookIssuedHistory(bid);dd.remove();});
+      dd.querySelector("[data-edit-book]").addEventListener("click",function(e2){e2.stopPropagation();openEditBook(bid);dd.remove();});
+      dd.querySelector("[data-del-book]").addEventListener("click",async function(e2){
+        e2.stopPropagation();
+        if(!confirm('Remove "'+book.title+'" from the catalog?')){dd.remove();return;}
+        await deleteBook(bid);
+        BOOKS=BOOKS.filter(function(b){return b.id!==bid;}); saveToLocal();
+        dd.remove();
+        buildBookRows(document.getElementById("book-search").value.toLowerCase());
+        toast("Book removed.");
+      });
+    });
+  });
+  tbody.querySelectorAll("[data-req]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var m=session.member;
+      var rid="req-"+Date.now();
+      var req={id:rid,memberId:m.id,memberName:m.name,bookId:btn.dataset.req,bookTitle:btn.dataset.reqTitle,status:"pending",createdOn:td()};
+      btn.disabled=true; btn.textContent="Sending...";
+      try{
+        await saveRequest(req);
+        REQUESTS.push(req); saveToLocal();
+        toast("Request sent! Waiting for admin approval.");
+        buildBookRows(document.getElementById("book-search").value.toLowerCase());
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-send"></i> Request'; }
+    });
+  });
+}
+
+// ── Members ────────────────────────────────────────────────────────────────────
+document.getElementById("members-back").addEventListener("click",goHome);
+document.getElementById("members-logout").addEventListener("click",logout);
+document.getElementById("members-scan-btn").addEventListener("click",function(){openPwd("scan-member");});
+document.getElementById("members-pay-btn").addEventListener("click",function(){openPwd("payment");});
+document.getElementById("member-search").addEventListener("input",function(){buildMemberRows(this.value.toLowerCase());});
+
+function buildMemberRows(f){
+  var tbody=document.getElementById("member-tbody"); tbody.innerHTML="";
+  function isBFite(m){
+    var addr=(m.address||"").toLowerCase();
+    return addr.indexOf("bf")!==-1||addr.indexOf("b.f.")!==-1;
+  }
+  var baseMembers=activeMemberType==="all"?MEMBERS
+    :activeMemberType==="bfite"?MEMBERS.filter(isBFite)
+    :MEMBERS.filter(function(m){return !isBFite(m);});
+  var list=f?baseMembers.filter(function(m){return m.name.toLowerCase().indexOf(f)!==-1||m.id.toLowerCase().indexOf(f)!==-1;}):baseMembers;
+  if(!list.length){tbody.innerHTML='<tr><td colspan="4" class="empty">'+(f?"No members match.":"No members yet.")+'</td></tr>';return;}
+  list.forEach(function(m){
+    var cnt=m.books.filter(function(b){return inYear(b.issuedOn);}).length;
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><span class="idbadge">'+m.id+'</span></td><td><span class="mlink" data-mid="'+m.id+'">'+m.name+'</span></td><td style="color:var(--text-secondary)">'+(m.age||"—")+'</td><td style="color:var(--text-secondary);max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(m.address||"—")+'</td><td style="color:var(--text-secondary)">'+cnt+' issued</td><td><div class="dots-wrap"><button class="iBtn dd-btn" data-mid="'+m.id+'"><i class="ti ti-dots-vertical"></i></button></div></td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".mlink").forEach(function(el){el.addEventListener("click",function(){openPwd("issue-"+el.dataset.mid);});});
+  tbody.querySelectorAll(".dd-btn").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.stopPropagation(); document.querySelectorAll(".dropdown").forEach(function(d){d.remove();});
+      if(openDropdown===btn.dataset.mid){openDropdown=null;return;}
+      openDropdown=btn.dataset.mid; var mid=btn.dataset.mid;
+      var dd=document.createElement("div"); dd.className="dropdown";
+      dd.innerHTML='<div class="ddi" data-view="'+mid+'"><i class="ti ti-book-2"></i> View issued books</div><div class="ddi" data-edit="'+mid+'"><i class="ti ti-edit"></i> Edit details</div><div class="ddi red" data-rem="'+mid+'"><i class="ti ti-trash"></i> Remove member</div>';
+      document.body.appendChild(dd);
+      var rect=btn.getBoundingClientRect();
+      var ddH=dd.offsetHeight||120;
+      var spaceBelow=window.innerHeight-rect.bottom;
+      if(spaceBelow<ddH){
+        dd.style.top=(rect.top-ddH+window.scrollY)+"px";
+      } else {
+        dd.style.top=(rect.bottom+window.scrollY)+"px";
+      }
+      dd.style.left=(rect.right-170)+"px";
+      dd.querySelector("[data-view]").addEventListener("click",function(e){e.stopPropagation();openProfile(mid);dd.remove();openDropdown=null;});
+      dd.querySelector("[data-edit]").addEventListener("click",function(e){e.stopPropagation();openEditMember(mid);dd.remove();openDropdown=null;});
+      dd.querySelector("[data-rem]").addEventListener("click",async function(e){
+        e.stopPropagation();
+        await deleteMember(mid);
+        MEMBERS=MEMBERS.filter(function(m){return m.id!==mid;}); saveToLocal();
+        dd.remove();openDropdown=null;
+        buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+        toast("Member removed.");
+      });
+    });
+  });
+}
+document.addEventListener("click",function(){document.querySelectorAll(".dropdown").forEach(function(d){d.remove();});openDropdown=null;});
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+document.getElementById("dash-back").addEventListener("click",goHome);
+document.getElementById("dash-logout").addEventListener("click",logout);
+
+function buildDash(){
+  var m=session.member; if(!m) return;
+  document.getElementById("dash-chip-av").textContent=ini(m.name);
+  document.getElementById("dash-chip-name").textContent=m.name;
+  var active=m.books.filter(function(b){return !b.ret;});
+  var history=m.books.filter(function(b){return b.ret&&inYear(b.issuedOn);});
+  var aRows=active.length===0?'<div class="empty"><i class="ti ti-book-off" style="font-size:22px;display:block;margin-bottom:6px"></i>No books currently issued</div>'
+    :active.map(function(b){return '<div class="irow"><div><div class="irow-title">'+b.title+'</div><div class="irow-meta"><span class="idbadge" style="font-size:10px">'+b.bid+'</span><i class="ti ti-calendar"></i>Issued '+fmt(b.issuedOn)+'</div></div><span class="tag active-loan"><i class="ti ti-clock"></i> Active</span></div>';}).join("");
+  var hRows=history.length===0?'<div class="empty">No returned books this year</div>'
+    :history.map(function(b){return '<div class="irow"><div><div class="irow-title">'+b.title+'</div><div class="irow-meta"><span class="idbadge" style="font-size:10px">'+b.bid+'</span><i class="ti ti-calendar"></i>'+fmt(b.issuedOn)+'</div></div><span class="tag returned"><i class="ti ti-check"></i> Returned</span></div>';}).join("");
+  document.getElementById("dash-content").innerHTML=
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1.5rem"><div class="av lg">'+ini(m.name)+'</div><div><div style="font-size:18px;font-weight:600">'+m.name+'</div><div style="margin-top:4px;display:flex;align-items:center;gap:8px"><span class="idbadge">'+m.id+'</span><span style="font-size:11px;color:var(--text-muted)"><i class="ti ti-lock"></i> Your password</span></div></div></div>'
+    +'<div class="dash-grid"><div class="dcard" style="border-left:3px solid '+(m.paid?'var(--border-success)':'var(--border-danger)')+'"><h3><i class="ti ti-credit-card"></i> Subscription</h3>'
+    +(m.paid?'<span class="tag paid" style="font-size:12px;padding:5px 10px"><i class="ti ti-check"></i> Paid for this year</span><p style="font-size:12px;color:var(--text-muted);margin-top:0.5rem">Annual subscription of &#8377;500 received.</p>'
+            :'<span class="tag unpaid" style="font-size:12px;padding:5px 10px"><i class="ti ti-alert-circle"></i> Payment pending</span><p style="font-size:12px;color:var(--text-muted);margin-top:0.5rem">Please pay &#8377;500 by end of January.</p>')
+    +'</div><div class="dcard"><h3><i class="ti ti-books"></i> Books</h3><div style="display:flex;gap:1rem;text-align:center">'
+    +'<div style="flex:1"><div style="font-size:22px;font-weight:600;color:var(--text-warning)">'+active.length+'</div><div style="font-size:12px;color:var(--text-secondary)">Active</div></div>'
+    +'<div style="flex:1"><div style="font-size:22px;font-weight:600;color:var(--text-success)">'+history.length+'</div><div style="font-size:12px;color:var(--text-secondary)">Returned</div></div>'
+    +'<div style="flex:1"><div style="font-size:22px;font-weight:600;color:var(--text-accent)">'+m.books.length+'</div><div style="font-size:12px;color:var(--text-secondary)">Total</div></div>'
+    +'</div></div></div>'
+    +'<h3 style="margin-bottom:0.5rem"><i class="ti ti-clock"></i> Currently with you</h3><div class="tcard" style="margin-bottom:1.25rem">'+aRows+'</div>'
+    +'<h3 style="margin-bottom:0.5rem"><i class="ti ti-history"></i> Returned this year</h3><div class="tcard">'+hRows+'</div>'
+  +buildDashRequests(m);
+}
+
+// ── Admin Password ─────────────────────────────────────────────────────────────
+function openPwd(action){
+  pendingAction=action;
+  document.getElementById("pwd-inp").value="";
+  document.getElementById("pwd-err").style.display="none";
+  document.getElementById("ov-pwd").classList.add("open");
+  setTimeout(function(){document.getElementById("pwd-inp").focus();},100);
+}
+function closePwd(){document.getElementById("ov-pwd").classList.remove("open");pendingAction=null;}
+document.getElementById("pwd-close").addEventListener("click",closePwd);
+document.getElementById("pwd-cancel").addEventListener("click",closePwd);
+document.getElementById("pwd-inp").addEventListener("keydown",function(e){if(e.key==="Enter")submitPwd();});
+document.getElementById("pwd-submit").addEventListener("click",submitPwd);
+
+function submitPwd(){
+  var v=document.getElementById("pwd-inp").value;
+  var err=document.getElementById("pwd-err");
+  if(v!==ADMIN_PWD){err.textContent="Incorrect password.";err.style.display="block";return;}
+  var a=pendingAction||""; closePwd();
+  if(a==="payment")         openPayment();
+  else if(a==="scan-book")   openScan("book");
+  else if(a==="scan-member") openScan("member");
+  else if(a.indexOf("issue-")===0) openIssue(a.replace("issue-",""));
+}
+
+// ── Issue Book ─────────────────────────────────────────────────────────────────
+function openIssue(mid){
+  activeIssueId=mid;
+  var m=MEMBERS.filter(function(m){return m.id===mid;})[0]; if(!m) return;
+  document.getElementById("issue-av").textContent=ini(m.name);
+  document.getElementById("issue-name").textContent=m.name;
+  document.getElementById("issue-id").textContent=m.id;
+  document.getElementById("issue-search").value="";
+  buildIssueList(m,""); buildCurrentList(m);
+  document.getElementById("ov-issue").classList.add("open");
+  setTimeout(function(){document.getElementById("issue-search").focus();},100);
+}
+document.getElementById("issue-close").addEventListener("click",function(){document.getElementById("ov-issue").classList.remove("open");activeIssueId=null;});
+document.getElementById("issue-search").addEventListener("input",function(){
+  var m=MEMBERS.filter(function(m){return m.id===activeIssueId;})[0];
+  if(m) buildIssueList(m,this.value.toLowerCase());
+});
+
+function buildIssueList(m,f){
+  var baseList=activeLang==="all"?BOOKS:BOOKS.filter(function(b){return (b.lang||"english")===activeLang;});
+  var list=f?baseList.filter(function(b){return b.title.toLowerCase().indexOf(f)!==-1||b.author.toLowerCase().indexOf(f)!==-1||b.id.toLowerCase().indexOf(f)!==-1;}):baseList;
+  var el=document.getElementById("issue-book-list"); el.innerHTML="";
+  if(!list.length){el.innerHTML='<div class="empty">No books match.</div>';return;}
+  list.forEach(function(b){
+    var it=issuedTo(b.id);var una=!!it;
+    var row=document.createElement("div");row.className="brow"+(una?" una":"");
+    row.innerHTML='<div style="flex:1"><div style="font-weight:500;font-size:13px">'+b.title+'</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px"><span class="idbadge" style="font-size:10px">'+b.id+'</span> '+b.author+'</div>'+(it?'<div style="font-size:11px;color:var(--text-danger);margin-top:2px"><i class="ti ti-lock"></i> Issued to '+it+'</div>':'')+'</div>'+(una?'<span class="tag issued">Issued</span>':'<button class="btn suc sm" data-bid="'+b.id+'" data-btitle="'+b.title.replace(/"/g,"&quot;")+'"><i class="ti ti-plus"></i> Issue</button>');
+    el.appendChild(row);
+  });
+  el.querySelectorAll("[data-bid]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var m2=MEMBERS.filter(function(m){return m.id===activeIssueId;})[0]; if(!m2) return;
+      m2.books.push({bid:btn.dataset.bid,title:btn.dataset.btitle,issuedOn:td(),ret:false});
+      await updateMember(m2); saveToLocal();
+      toast('"'+btn.dataset.btitle+'" issued to '+m2.name);
+      buildIssueList(m2,document.getElementById("issue-search").value.toLowerCase());
+      buildCurrentList(m2);
+      buildBookRows(document.getElementById("book-search").value.toLowerCase());
+    });
+  });
+}
+
+function buildCurrentList(m){
+  var cur=m.books.filter(function(b){return !b.ret;});
+  var el=document.getElementById("issue-current");el.innerHTML="";
+  if(!cur.length){el.innerHTML='<p style="font-size:13px;color:var(--text-muted);padding:0.4rem 0">No books currently issued.</p>';return;}
+  cur.forEach(function(b){
+    var row=document.createElement("div");row.style.cssText="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:0.5px solid var(--border)";
+    row.innerHTML='<div><div style="font-size:13px;font-weight:500">'+b.title+'</div><div style="font-size:11px;color:var(--text-secondary)"><span class="idbadge" style="font-size:10px">'+b.bid+'</span> Issued '+fmt(b.issuedOn)+'</div></div><button class="btn war sm" data-rbid="'+b.bid+'"><i class="ti ti-arrow-back-up"></i> Return</button>';
+    el.appendChild(row);
+  });
+  el.querySelectorAll("[data-rbid]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      for(var i=0;i<m.books.length;i++){if(m.books[i].bid===btn.dataset.rbid&&!m.books[i].ret){toast('"'+m.books[i].title+'" returned by '+m.name);m.books[i].ret=true;break;}}
+      await updateMember(m); saveToLocal();
+      buildCurrentList(m);
+      buildIssueList(m,document.getElementById("issue-search").value.toLowerCase());
+      buildBookRows(document.getElementById("book-search").value.toLowerCase());
+    });
+  });
+}
+
+// ── Member Profile ─────────────────────────────────────────────────────────────
+function openProfile(mid){
+  var m=MEMBERS.filter(function(m){return m.id===mid;})[0];if(!m)return;
+  var recent=m.books.filter(function(b){return inYear(b.issuedOn);}).sort(function(a,b){return new Date(b.issuedOn)-new Date(a.issuedOn);});
+  var older=m.books.filter(function(b){return !inYear(b.issuedOn);}).length;
+  var rows=recent.length===0?'<div class="empty"><i class="ti ti-book-off" style="font-size:24px;display:block;margin-bottom:6px"></i>No books in last year</div>'
+    :recent.map(function(b){return '<div class="irow"><div><div class="irow-title">'+b.title+'</div><div class="irow-meta"><span class="idbadge" style="font-size:10px">'+b.bid+'</span><i class="ti ti-calendar"></i>'+fmt(b.issuedOn)+'</div></div><span class="tag '+(b.ret?"returned":"active-loan")+'">'+(b.ret?'<i class="ti ti-check"></i> Returned':'<i class="ti ti-clock"></i> Active')+'</span></div>';}).join("");
+  var ov=document.createElement("div");ov.className="ov open";ov.style.zIndex="250";
+  ov.innerHTML='<div class="modal"><div class="modal-head"><div style="display:flex;align-items:center;gap:10px"><div class="av lg">'+ini(m.name)+'</div><div><div style="font-size:15px;font-weight:600">'+m.name+'</div><div style="margin-top:3px"><span class="idbadge">'+m.id+'</span></div></div></div><button class="iBtn" id="prof-close"><i class="ti ti-x"></i></button></div><h3 style="margin-bottom:0.5rem"><i class="ti ti-book-2"></i> Issued books — last 12 months <span style="font-size:12px;font-weight:400;color:var(--text-secondary)">'+recent.length+' book'+(recent.length!==1?"s":"")+'</span></h3><div class="tcard">'+rows+'</div>'+(older>0?'<p style="font-size:12px;color:var(--text-muted);margin-top:0.75rem;text-align:center">+'+older+' older issues not shown</p>':'')+'</div>';
+  document.body.appendChild(ov);
+  ov.querySelector("#prof-close").addEventListener("click",function(){ov.remove();});
+  ov.addEventListener("click",function(e){if(e.target===ov)ov.remove();});
+}
+
+// ── Scan ───────────────────────────────────────────────────────────────────────
+function buildRequests(){
+  var pending = REQUESTS.filter(function(r){return r.status==="pending"||(r.status==="approved"&&!r.collected);});
+  var history = REQUESTS.filter(function(r){return r.status!=="pending"&&!(r.status==="approved"&&!r.collected);}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+
+  var pTbody = document.getElementById("req-pending-tbody");
+  pTbody.innerHTML = "";
+  if(!pending.length){
+    pTbody.innerHTML='<tr><td colspan="4" class="empty"><i class="ti ti-check" style="font-size:20px;display:block;margin-bottom:6px"></i>No pending requests</td></tr>';
+  } else {
+    pending.forEach(function(r){
+      var tr=document.createElement("tr");
+      var collectInfo=r.status==="approved"&&!r.collected?(' — collect by '+fmt(r.collectBy)):'';
+      tr.innerHTML='<td><div style="font-weight:500">'+r.memberName+'</div><div style="font-size:11px;color:var(--text-muted)"><span class="idbadge" style="font-size:10px">'+r.memberId+'</span></div></td>'
+        +'<td style="font-weight:500">'+r.bookTitle+collectInfo+'</td>'
+        +'<td style="color:var(--text-secondary)">'+fmt(r.createdOn)+'</td>'
+        +'<td><div style="display:flex;gap:6px">'
+        +(r.status==="pending"
+          ?'<button class="btn suc sm" data-approve="'+r.id+'"><i class="ti ti-check"></i> Approve</button><button class="btn dan sm" data-reject="'+r.id+'"><i class="ti ti-x"></i> Reject</button>'
+          :'<button class="btn pri sm" data-collect="'+r.id+'"><i class="ti ti-package"></i> Mark collected</button>')
+        +'</div></td>';
+      pTbody.appendChild(tr);
+    });
+  }
+
+  var hTbody = document.getElementById("req-history-tbody");
+  hTbody.innerHTML = "";
+  if(!history.length){
+    hTbody.innerHTML='<tr><td colspan="4" class="empty">No past requests</td></tr>';
+  } else {
+    history.forEach(function(r){
+      var tag=r.status==="approved"?'<span class="tag returned"><i class="ti ti-check"></i> Approved</span>':'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>';
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+r.memberName+'</td><td>'+r.bookTitle+'</td><td style="color:var(--text-secondary)">'+fmt(r.createdOn)+'</td><td>'+tag+'</td>';
+      hTbody.appendChild(tr);
+    });
+  }
+
+  // approve/reject handlers
+  pTbody.querySelectorAll("[data-approve]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.approve;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Approving…";
+      if(isBlockedFor(req.bookId)){alert("This book is already blocked for someone else.");return;}
+      if(issuedTo(req.bookId)){alert("This book is already issued to someone else.");return;}
+      req.status="approved";
+      req.collectBy=nextTuesday();
+      req.collected=false;
+      try{
+        await updateRequest(req);
+        saveToLocal();
+        toast(req.bookTitle+" approved! Must be collected by "+fmt(req.collectBy)+".");
+        buildRequests();
+        buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Approve'; }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-reject]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.reject;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Rejecting…";
+      req.status="rejected";
+      try{
+        await updateRequest(req);
+        saveToLocal();
+        toast("Request rejected.");
+        buildRequests();
+        buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-x"></i> Reject'; }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-collect]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.collect;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Saving…";
+      // now actually issue the book
+      var m=MEMBERS.filter(function(m){return m.id===req.memberId;})[0];
+      if(!m){alert("Member not found.");return;}
+      m.books.push({bid:req.bookId,title:req.bookTitle,issuedOn:td(),ret:false});
+      req.collected=true;
+      req.status="collected";
+      try{
+        await updateMember(m);
+        await updateRequest(req);
+        saveToLocal();
+        toast(req.bookTitle+" collected by "+req.memberName+"!");
+        buildRequests();
+        buildBookRows(document.getElementById("book-search").value.toLowerCase());
+        buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-package"></i> Mark collected'; }
+    });
+  });
+}
+
+function buildDashRequests(m){
+  var myReqs = REQUESTS.filter(function(r){return r.memberId===m.id;}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+  if(!myReqs.length) return '';
+  var rows = myReqs.map(function(r){
+    var tag = r.status==="pending"?'<span class="tag active-loan"><i class="ti ti-clock"></i> Pending</span>'
+             :r.status==="approved"&&!r.collected?'<span class="tag avail"><i class="ti ti-check"></i> Approved — collect by '+fmt(r.collectBy)+'</span>'
+             :r.status==="collected"?'<span class="tag returned"><i class="ti ti-package"></i> Collected</span>'
+             :r.status==="expired"?'<span class="tag unpaid"><i class="ti ti-clock-off"></i> Expired</span>'
+             :'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>';
+    return '<div class="irow"><div><div class="irow-title">'+r.bookTitle+'</div><div class="irow-meta"><i class="ti ti-calendar"></i>Requested '+fmt(r.createdOn)+'</div></div>'+tag+'</div>';
+  }).join("");
+  return '<h3 style="margin-top:1.25rem;margin-bottom:0.5rem"><i class="ti ti-bell"></i> My book requests</h3><div class="tcard">'+rows+'</div>';
+}
+
+function openBookIssuedHistory(bid){
+  var book=BOOKS.filter(function(b){return b.id===bid;})[0]; if(!book) return;
+  // gather all members who have issued this book
+  var issuedBy=[];
+  MEMBERS.forEach(function(m){
+    m.books.forEach(function(b){
+      if(b.bid===bid){
+        issuedBy.push({memberName:m.name,memberId:m.id,issuedOn:b.issuedOn,ret:b.ret});
+      }
+    });
+  });
+  issuedBy.sort(function(a,b){return new Date(b.issuedOn)-new Date(a.issuedOn);});
+
+  var rows=issuedBy.length===0
+    ?'<div class="empty"><i class="ti ti-user-off" style="font-size:24px;display:block;margin-bottom:6px"></i>No members have issued this book yet</div>'
+    :issuedBy.map(function(entry){
+      return '<div class="irow">'
+        +'<div>'
+        +'<div class="irow-title">'+entry.memberName+'</div>'
+        +'<div class="irow-meta"><span class="idbadge" style="font-size:10px">'+entry.memberId+'</span>'
+        +'<i class="ti ti-calendar"></i> Issued '+fmt(entry.issuedOn)+'</div>'
+        +'</div>'
+        +'<span class="tag '+(entry.ret?"returned":"active-loan")+'">'
+        +(entry.ret?'<i class="ti ti-check"></i> Returned':'<i class="ti ti-clock"></i> Active')
+        +'</span></div>';
+    }).join("");
+
+  var ov=document.createElement("div"); ov.className="ov open"; ov.style.zIndex="250";
+  ov.innerHTML='<div class="modal">'
+    +'<div class="modal-head">'
+    +'<div><div style="font-size:15px;font-weight:600"><i class="ti ti-books"></i> '+book.title+'</div>'
+    +'<div style="margin-top:3px"><span class="idbadge">'+book.id+'</span> &nbsp;<span style="font-size:12px;color:var(--text-secondary)">'+book.author+'</span></div></div>'
+    +'<button class="iBtn" id="bih-close"><i class="ti ti-x"></i></button>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">'
+    +'<h3 style="margin-bottom:0"><i class="ti ti-users"></i> Members issued by</h3>'
+    +'<span style="font-size:12px;color:var(--text-secondary)">'+issuedBy.length+' record'+(issuedBy.length!==1?"s":"")+'</span>'
+    +'</div>'
+    +'<div class="tcard">'+rows+'</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  ov.querySelector("#bih-close").addEventListener("click",function(){ov.remove();});
+  ov.addEventListener("click",function(e){if(e.target===ov)ov.remove();});
+}
+
+var editingBookId = null;
+function openEditBook(bid){
+  var b=BOOKS.filter(function(b){return b.id===bid;})[0]; if(!b) return;
+  editingBookId=bid;
+  document.getElementById("edit-b-title").value=b.title||"";
+  document.getElementById("edit-b-author").value=b.author||"";
+  document.getElementById("edit-b-year").value=b.year||"";
+  document.getElementById("edit-b-id").value=b.id;
+  document.getElementById("edit-b-lang").value=b.lang||"english";
+  document.getElementById("edit-b-err").style.display="none";
+  document.getElementById("ov-edit-book").classList.add("open");
+}
+document.getElementById("edit-book-close").addEventListener("click",function(){document.getElementById("ov-edit-book").classList.remove("open");});
+document.getElementById("edit-b-cancel").addEventListener("click",function(){document.getElementById("ov-edit-book").classList.remove("open");});
+document.getElementById("ov-edit-book").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+document.getElementById("edit-b-save").addEventListener("click",async function(){
+  var title=document.getElementById("edit-b-title").value.trim();
+  var author=document.getElementById("edit-b-author").value.trim();
+  var year=document.getElementById("edit-b-year").value.trim();
+  var lang=document.getElementById("edit-b-lang").value;
+  var err=document.getElementById("edit-b-err");
+  if(!title){err.textContent="Title is required.";err.style.display="block";return;}
+  var b=BOOKS.filter(function(b){return b.id===editingBookId;})[0]; if(!b) return;
+  this.disabled=true; this.textContent="Saving…";
+  b.title=title; b.author=author||"Unknown"; b.year=year?parseInt(year)||b.year:b.year; b.lang=lang;
+  try{
+    await saveBook(b); saveToLocal();
+    document.getElementById("ov-edit-book").classList.remove("open");
+    toast("Book updated!");
+    buildBookRows(document.getElementById("book-search").value.toLowerCase());
+  } catch(e2){ err.textContent="Error: "+e2.message; err.style.display="block"; }
+  this.disabled=false; this.innerHTML='<i class="ti ti-check"></i> Save changes';
+});
+
+var editingMemberId = null;
+function openEditMember(mid){
+  var m=MEMBERS.filter(function(m){return m.id===mid;})[0]; if(!m) return;
+  editingMemberId=mid;
+  document.getElementById("edit-m-name").value=m.name||"";
+  document.getElementById("edit-m-age").value=m.age||"";
+  document.getElementById("edit-m-id").value=m.id;
+  document.getElementById("edit-m-address").value=m.address||"";
+  document.getElementById("edit-m-err").style.display="none";
+  document.getElementById("ov-edit-member").classList.add("open");
+}
+document.getElementById("edit-member-close").addEventListener("click",function(){document.getElementById("ov-edit-member").classList.remove("open");});
+document.getElementById("edit-m-cancel").addEventListener("click",function(){document.getElementById("ov-edit-member").classList.remove("open");});
+document.getElementById("edit-m-save").addEventListener("click",async function(){
+  var name=document.getElementById("edit-m-name").value.trim();
+  var age=document.getElementById("edit-m-age").value.trim();
+  var address=document.getElementById("edit-m-address").value.trim();
+  var err=document.getElementById("edit-m-err");
+  if(!name){err.textContent="Name is required.";err.style.display="block";return;}
+  var m=MEMBERS.filter(function(m){return m.id===editingMemberId;})[0]; if(!m) return;
+  this.disabled=true; this.textContent="Saving…";
+  m.name=name; m.age=age?parseInt(age)||null:null; m.address=address;
+  try{
+    await updateMember(m); saveToLocal();
+    document.getElementById("ov-edit-member").classList.remove("open");
+    toast("Member updated!");
+    buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+  } catch(e){ err.textContent="Error: "+e.message; err.style.display="block"; }
+  this.disabled=false; this.innerHTML='<i class="ti ti-check"></i> Save changes';
+});
+document.getElementById("ov-edit-member").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+
+// ── Membership Applications ────────────────────────────────────────────────────
+function buildMemApps(){
+  var pending=MEM_APPS.filter(function(a){return a.status==="pending";});
+  var history=MEM_APPS.filter(function(a){return a.status!=="pending";}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+
+  var pTbody=document.getElementById("memapp-pending-tbody"); pTbody.innerHTML="";
+  if(!pending.length){
+    pTbody.innerHTML='<tr><td colspan="6" class="empty"><i class="ti ti-check" style="font-size:20px;display:block;margin-bottom:6px"></i>No pending applications</td></tr>';
+  } else {
+    pending.forEach(function(a){
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+a.name+'</td>'
+        +'<td>'+a.age+'</td>'
+        +'<td>'+(a.livesInBF==="yes"?'<span class="tag avail">Yes</span>':'<span class="tag unpaid">No</span>')+'</td>'
+        +'<td style="color:var(--text-secondary);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.address+'</td>'
+        +'<td style="color:var(--text-secondary)">'+fmt(a.createdOn)+'</td>'
+        +'<td><div style="display:flex;gap:6px">'
+        +'<button class="btn suc sm" data-approve-app="'+a.id+'"><i class="ti ti-check"></i> Approve</button>'
+        +'<button class="btn dan sm" data-reject-app="'+a.id+'"><i class="ti ti-x"></i> Reject</button>'
+        +'</div></td>';
+      pTbody.appendChild(tr);
+    });
+  }
+
+  var hTbody=document.getElementById("memapp-history-tbody"); hTbody.innerHTML="";
+  if(!history.length){
+    hTbody.innerHTML='<tr><td colspan="5" class="empty">No past applications</td></tr>';
+  } else {
+    history.forEach(function(a){
+      var tag=a.status==="approved"?'<span class="tag returned"><i class="ti ti-check"></i> Approved</span>':'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>';
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+a.name+'</td><td>'+a.age+'</td><td style="color:var(--text-secondary)">'+a.address+'</td><td style="color:var(--text-secondary)">'+fmt(a.createdOn)+'</td><td>'+tag+'</td>';
+      hTbody.appendChild(tr);
+    });
+  }
+
+  pTbody.querySelectorAll("[data-approve-app]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var aid=btn.dataset.approveApp;
+      var app=MEM_APPS.filter(function(a){return a.id===aid;})[0]; if(!app) return;
+      btn.disabled=true; btn.textContent="Adding member…";
+      var newM={id:nextMemberId(),name:app.name,age:app.age?parseInt(app.age)||null:null,address:app.address||"",paid:false,paidYear:null,books:[]};
+      app.status="approved"; app.memberId=newM.id;
+      try{
+        await saveMember(newM);
+        await updateMemberApp(app);
+        MEMBERS.push(newM);
+        MEM_APPS=MEM_APPS.map(function(a){return a.id===aid?app:a;});
+        saveToLocal();
+        toast(app.name+" approved! Member ID: "+newM.id);
+        buildMemApps(); buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Approve'; alert("Error: "+e.message); }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-reject-app]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var aid=btn.dataset.rejectApp;
+      var app=MEM_APPS.filter(function(a){return a.id===aid;})[0]; if(!app) return;
+      btn.disabled=true; btn.textContent="Rejecting…";
+      app.status="rejected";
+      try{
+        await updateMemberApp(app);
+        MEM_APPS=MEM_APPS.map(function(a){return a.id===aid?app:a;});
+        saveToLocal();
+        toast("Application rejected.");
+        buildMemApps(); buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-x"></i> Reject'; }
+    });
+  });
+}
+
+document.getElementById("memapp-back").addEventListener("click",goHome);
+document.getElementById("memapp-logout").addEventListener("click",logout);
+
+// ── Signup ──────────────────────────────────────────────────────────────────────
+document.getElementById("yr3").textContent=new Date().getFullYear();
+document.getElementById("go-signup").addEventListener("click",function(){ showPage("pg-signup"); });
+document.getElementById("signup-back").addEventListener("click",function(){ showPage("pg-login"); });
+
+// highlight selected radio
+document.getElementById("su-bf-yes").addEventListener("change",function(){
+  document.getElementById("su-bf-yes-lbl").style.borderColor="var(--fill-accent)";
+  document.getElementById("su-bf-no-lbl").style.borderColor="#d1d5db";
+});
+document.getElementById("su-bf-no").addEventListener("change",function(){
+  document.getElementById("su-bf-no-lbl").style.borderColor="var(--fill-accent)";
+  document.getElementById("su-bf-yes-lbl").style.borderColor="#d1d5db";
+});
+
+document.getElementById("su-submit").addEventListener("click",async function(){
+  var name=document.getElementById("su-name").value.trim();
+  var age=document.getElementById("su-age").value.trim();
+  var bf=document.querySelector('input[name="su-bf"]:checked');
+  var address=document.getElementById("su-address").value.trim();
+  var err=document.getElementById("signup-err");
+  var succ=document.getElementById("signup-success");
+  err.style.display="none"; succ.style.display="none";
+
+  if(!name){err.textContent="Please enter your name.";err.style.display="block";return;}
+  if(!age){err.textContent="Please share your age.";err.style.display="block";return;}
+  if(!bf){err.textContent="Please answer whether you live in BF Block.";err.style.display="block";return;}
+  if(!address){err.textContent="Please enter your address.";err.style.display="block";return;}
+
+  this.disabled=true; this.innerHTML='<i class="ti ti-loader"></i> Submitting…';
+  var app={id:"app-"+Date.now(),name:name,age:parseInt(age)||null,livesInBF:bf.value,address:address,status:"pending",createdOn:td()};
+  try{
+    await saveMemberApp(app);
+    MEM_APPS.push(app); saveToLocal();
+    succ.textContent="Your application has been submitted! The admin will review it and add you as a member.";
+    succ.style.display="block";
+    document.getElementById("su-name").value="";
+    document.getElementById("su-age").value="";
+    document.getElementById("su-address").value="";
+    document.querySelectorAll('input[name="su-bf"]').forEach(function(r){r.checked=false;});
+    document.getElementById("su-bf-yes-lbl").style.borderColor="#d1d5db";
+    document.getElementById("su-bf-no-lbl").style.borderColor="#d1d5db";
+  } catch(e){ err.textContent="Error submitting: "+e.message; err.style.display="block"; }
+  this.disabled=false; this.innerHTML='<i class="ti ti-send"></i> Ask for membership status approval from Admin';
+});
+
+function openScan(type){
+  activeScanType=type;
+  var titles={book:"Scan to add books",member:"Scan to add members","payment-update":"Scan to mark members as paid"};
+  var hints={book:"Paste, drop, or upload a screenshot of a book list.",member:"Paste, drop, or upload a screenshot of a member list.","payment-update":"Upload a screenshot with member names to mark as paid."};
+  document.getElementById("scan-title").innerHTML='<i class="ti ti-scan"></i> '+(titles[type]||"Scan");
+  document.getElementById("scan-hint").textContent=hints[type]||"";
+  document.getElementById("scan-book-fields").style.display=type==="book"?"":"none";
+  document.getElementById("scan-member-fields").style.display=type==="member"?"":"none";
+  document.getElementById("scan-payupdate-fields").style.display=type==="payment-update"?"":"none";
+  ["scan-m-title","scan-m-author","scan-m-year","scan-m-name","scan-m-payname"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+  document.getElementById("scan-results").innerHTML="";
+  scanBookLang="english";
+  showScanState("idle");
+  document.getElementById("ov-scan").classList.add("open");
+}
+function showScanState(s){
+  document.getElementById("scan-idle").style.display=s==="idle"?"":"none";
+  document.getElementById("scan-scanning").style.display=s==="scanning"?"":"none";
+  document.getElementById("scan-done").style.display=s==="done"?"":"none";
+}
+document.getElementById("scan-close").addEventListener("click",function(){document.getElementById("ov-scan").classList.remove("open");});
+document.getElementById("scan-again").addEventListener("click",function(){showScanState("idle");});
+
+var scanZone=document.getElementById("scan-zone");
+scanZone.addEventListener("dragover",function(e){e.preventDefault();scanZone.classList.add("drag");});
+scanZone.addEventListener("dragleave",function(){scanZone.classList.remove("drag");});
+scanZone.addEventListener("drop",function(e){e.preventDefault();scanZone.classList.remove("drag");if(e.dataTransfer.files[0])processFile(e.dataTransfer.files[0]);});
+document.getElementById("scan-file").addEventListener("change",function(e){if(e.target.files[0])processFile(e.target.files[0]);});
+
+document.addEventListener("paste",function(e){
+  if(!document.getElementById("ov-scan").classList.contains("open"))return;
+  var items=e.clipboardData?e.clipboardData.items:[];
+  for(var i=0;i<items.length;i++){if(items[i].type.startsWith("image/")){scanZone.classList.add("drag");setTimeout(function(){scanZone.classList.remove("drag");},300);processFile(items[i].getAsFile());break;}}
+});
+
+document.getElementById("scan-manual-add").addEventListener("click",async function(){
+  var lines=[];
+  if(activeScanType==="book"){
+    var t=document.getElementById("scan-m-title").value.trim();
+    var a=document.getElementById("scan-m-author").value.trim();
+    var y=document.getElementById("scan-m-year").value.trim();
+    if(!t){alert("Please enter a book title.");return;}
+    var lang=document.getElementById("scan-m-lang").value||"english";
+    scanBookLang=lang;
+    lines.push(t+"|"+(a||"Unknown")+"|"+(y||String(thisYear)));
+  } else if(activeScanType==="member"){
+    var n=document.getElementById("scan-m-name").value.trim();
+    if(!n){alert("Please enter a member name.");return;}
+    lines.push(n);
+  } else if(activeScanType==="payment-update"){
+    var pn=document.getElementById("scan-m-payname").value.trim();
+    if(!pn){alert("Please enter a member name.");return;}
+    lines.push(pn);
+  }
+  if(!lines.length)return;
+  // For manual single-entry, add directly without going to confirm screen
+  await processScanEntries(lines);
+  document.getElementById("ov-scan").classList.remove("open");
+  toast("Done!");
+});
+
+document.getElementById("scan-confirm").addEventListener("click",async function(){
+  var checked=document.querySelectorAll("#scan-results input[type=checkbox]:checked");
+  var sel=[]; checked.forEach(function(cb){sel.push(cb.dataset.val);});
+  if(!sel.length)return;
+  var type = activeScanType;
+  this.disabled=true; this.textContent="Saving…";
+  try {
+    await processScanEntries(sel, type);
+    document.getElementById("ov-scan").classList.remove("open");
+    toast("Saved successfully!");
+  } catch(e){
+    alert("Save failed: "+e.message);
+  } finally {
+    this.disabled=false;
+    this.innerHTML='<i class="ti ti-check"></i> Add selected';
+  }
+});
+
+async function processScanEntries(entries, type){
+  if(!type) type = activeScanType;
+  if(type==="book"){
+    for(var i=0;i<entries.length;i++){
+      var entry=entries[i];
+      var bookObj;
+      if(entry.indexOf("|")!==-1){
+        var parts=entry.split("|");
+        var t=parts[0]?parts[0].trim():"Unknown";
+        var a=parts[1]?parts[1].trim():"Unknown";
+        var y=parts[2]?parseInt(parts[2].trim())||thisYear:thisYear;
+        bookObj={id:nextBookId(a),title:t,author:a,year:y,lang:scanBookLang||"english"};
+      } else {
+        var p=entry.split(/\s+by\s+/i);
+        var a2=p[1]?p[1].trim():"Unknown";
+        bookObj={id:nextBookId(a2),title:p[0].trim(),author:a2,year:thisYear,lang:scanBookLang||"english"};
+      }
+      await saveBook(bookObj);
+      BOOKS.push(bookObj);
+    }
+    saveToLocal();
+    buildBookRows(document.getElementById("book-search").value.toLowerCase());
+  } else if(type==="member"){
+    for(var i=0;i<entries.length;i++){
+      var newM={id:nextMemberId(),name:entries[i].trim(),age:null,address:"",paid:false,paidYear:null,books:[]};
+      await saveMember(newM);
+      MEMBERS.push(newM);
+    }
+    saveToLocal();
+    buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+  } else if(type==="payment-update"){
+    for(var i=0;i<entries.length;i++){
+      var cn=entries[i].trim().toLowerCase();
+      for(var j=0;j<MEMBERS.length;j++){
+        if(MEMBERS[j].name.toLowerCase().indexOf(cn)!==-1||cn.indexOf(MEMBERS[j].name.toLowerCase().split(" ")[0])!==-1){
+          MEMBERS[j].paid=true; MEMBERS[j].paidYear=thisYear;
+          await updateMember(MEMBERS[j]);
+        }
+      }
+    }
+  }
+}
+
+function buildScanResults(lines){
+  var el=document.getElementById("scan-results");el.innerHTML="";
+  lines.forEach(function(line){
+    var display=line;
+    if(line.indexOf("|")!==-1){var parts=line.split("|");display='<strong>'+parts[0]+'</strong>'+(parts[1]?' &mdash; '+parts[1]:'')+(parts[2]?' ('+parts[2]+')':'');}
+    var label=document.createElement("label");label.className="ex-item";
+    label.innerHTML='<input type="checkbox" data-val="'+line.replace(/"/g,"&quot;")+'" checked> <span>'+display+'</span>';
+    el.appendChild(label);
+  });
+}
+
+function processFile(file){
+  var r=new FileReader();
+  r.onload=function(e){
+    document.getElementById("scan-preview").src=e.target.result;
+    document.getElementById("scan-preview2").src=e.target.result;
+    document.getElementById("scan-preview2").style.display="block";
+    showScanState("scanning");
+    if(typeof Tesseract!=="undefined"){
+      Tesseract.recognize(e.target.result,"eng",{logger:function(){}})
+        .then(function(res){
+          var lines=[];res.data.text.split("\n").forEach(function(l){l=l.trim();if(l.length>3&&!/^\d+$/.test(l)&&lines.indexOf(l)===-1)lines.push(l);});
+          buildScanResults(lines.slice(0,30));showScanState("done");
+        }).catch(function(){buildScanResults([]);showScanState("done");});
+    } else {setTimeout(function(){buildScanResults(["Sample entry (OCR unavailable)"]);showScanState("done");},1200);}
+  };
+  r.readAsDataURL(file);
+}
+
+// ── Payment ────────────────────────────────────────────────────────────────────
+function openPayment(){document.getElementById("pg-payment").style.display="block";buildPayment();}
+document.getElementById("pay-close").addEventListener("click",function(){document.getElementById("pg-payment").style.display="none";});
+document.getElementById("pay-scan").addEventListener("click",function(){openScan("payment-update");});
+
+function buildPayment(){
+  var paid=MEMBERS.filter(function(m){return m.paid;});
+  var unpaid=MEMBERS.filter(function(m){return !m.paid;});
+  document.getElementById("pay-stats").innerHTML='<div class="scard"><div class="n" style="color:var(--text-success)">'+paid.length+'</div><div class="l">Paid</div></div><div class="scard"><div class="n" style="color:var(--text-danger)">'+unpaid.length+'</div><div class="l">Pending</div></div>';
+  var upEl=document.getElementById("pay-unpaid");upEl.innerHTML="";
+  if(!unpaid.length){upEl.innerHTML='<tr><td colspan="3" class="empty">All members have paid!</td></tr>';}
+  else unpaid.forEach(function(m){var tr=document.createElement("tr");tr.innerHTML='<td><span class="idbadge">'+m.id+'</span></td><td style="font-weight:500">'+m.name+'</td><td><button class="btn suc sm" data-mk="'+m.id+'"><i class="ti ti-check"></i> Mark paid</button></td>';upEl.appendChild(tr);});
+  var pEl=document.getElementById("pay-paid");pEl.innerHTML="";
+  if(!paid.length){pEl.innerHTML='<tr><td colspan="3" class="empty">No paid members yet.</td></tr>';}
+  else paid.forEach(function(m){var tr=document.createElement("tr");tr.innerHTML='<td><span class="idbadge">'+m.id+'</span></td><td style="font-weight:500">'+m.name+'</td><td><span class="tag paid"><i class="ti ti-check"></i> Paid</span></td>';pEl.appendChild(tr);});
+  document.getElementById("pay-unpaid").querySelectorAll("[data-mk]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var m=MEMBERS.filter(function(m){return m.id===btn.dataset.mk;})[0];
+      if(m){m.paid=true;m.paidYear=thisYear;await updateMember(m);saveToLocal();}
+      buildPayment();toast(m.name+" marked as paid.");
+    });
+  });
+}
+
+// close overlays on bg click
+document.getElementById("ov-pwd").addEventListener("click",function(e){if(e.target===this)closePwd();});
+document.getElementById("ov-issue").addEventListener("click",function(e){if(e.target===this){this.classList.remove("open");activeIssueId=null;}});
+document.getElementById("ov-scan").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+document.getElementById("rules-back").addEventListener("click",goHome);
+document.getElementById("req-back").addEventListener("click",goHome);
+document.getElementById("req-logout").addEventListener("click",logout);
+document.querySelectorAll("[id$='-logout']").forEach(function(el){el.addEventListener("click",logout);});
+
+loadData().then(function(){
+  loading(false);
+  showPage("pg-login");
+});
+
+</script>
+</body>
+</html>
