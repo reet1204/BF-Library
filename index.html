@@ -851,7 +851,7 @@ document.addEventListener("click",function(e){
 });
 document.addEventListener("click",function(e){
   if(e.target.closest("#su-done-back")){ showPage("pg-login"); return; }
-  if(e.target.closest(".lang-card")){
+  if(e.target.closest("#su-done-back")){ showPage("pg-login"); return; }   if(e.target.closest(".lang-card")){
     var btn=e.target.closest(".lang-card");
     document.querySelectorAll(".lang-card").forEach(function(t){t.classList.remove("active");});
     btn.classList.add("active");
