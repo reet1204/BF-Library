@@ -1495,7 +1495,7 @@ document.getElementById("su-submit").addEventListener("click",async function(){
       +'<div style="width:64px;height:64px;border-radius:50%;background:var(--bg-success);display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--text-success);margin:0 auto 1.25rem"><i class="ti ti-circle-check"></i></div>'
       +'<div style="font-size:18px;font-weight:700;margin-bottom:0.5rem">Application submitted!</div>'
       +'<div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:1.5rem">Thank you, <strong>'+name+'</strong>. Your membership application has been sent to the admin. Once approved, you will receive your Member ID which you can use to log in.</div>'
-      +'<button onclick="showPage('pg-login')" style="padding:0.65rem 1.5rem;background:var(--fill-accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit"><i class="ti ti-arrow-left"></i> Back to sign in</button>'
+      +'<button id="su-done-back" style="padding:0.65rem 1.5rem;background:var(--fill-accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit"><i class="ti ti-arrow-left"></i> Back to sign in</button>'
       +'</div>';
   } catch(e){ err.textContent="Error submitting: "+e.message; err.style.display="block"; }
   this.disabled=false; this.innerHTML='<i class="ti ti-send"></i> Ask for membership status approval from Admin';
