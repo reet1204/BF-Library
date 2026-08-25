@@ -1,0 +1,2311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1a2e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BF Library">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>BF Block Public Library</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --surface-0:#f1f0e8;--surface-1:#f9f8f4;--surface-2:#ffffff;
+  --text-primary:#1a1a18;--text-secondary:#5c5c58;--text-muted:#999890;
+  --border:rgba(0,0,0,0.10);--border-strong:rgba(0,0,0,0.18);
+  --fill-accent:#2563eb;
+  --bg-accent:#eff6ff;--text-accent:#1d4ed8;--border-accent:#93c5fd;
+  --bg-success:#f0fdf4;--text-success:#16a34a;--border-success:#86efac;
+  --bg-danger:#fef2f2;--text-danger:#dc2626;--border-danger:#fca5a5;
+  --bg-warning:#fffbeb;--text-warning:#d97706;--border-warning:#fcd34d;
+  --radius:8px;--font-sans:system-ui,-apple-system,sans-serif;--font-mono:ui-monospace,monospace;
+}
+body{font-family:var(--font-sans);background:var(--surface-0);color:var(--text-primary);min-height:100vh}
+.page{display:none;min-height:100vh}
+.page.active{display:flex;flex-direction:column}
+
+/* login */
+.login-bg{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden;background-color:#1a1a2e}
+.login-bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 10% 20%,rgba(99,57,183,0.55) 0%,transparent 50%),radial-gradient(ellipse at 85% 10%,rgba(37,99,235,0.5) 0%,transparent 45%),radial-gradient(ellipse at 60% 80%,rgba(124,58,237,0.45) 0%,transparent 50%),radial-gradient(ellipse at 20% 75%,rgba(14,116,144,0.4) 0%,transparent 45%),radial-gradient(ellipse at 45% 40%,rgba(79,70,229,0.3) 0%,transparent 55%);pointer-events:none}
+.login-bg::after{content:'📚 ✨ 📖 🌟 📕 💫 📗 ⭐ 📘 ✨ 📙 🌙 📚 💫 📖 ✨ 📕 🌟 📗 ⭐';position:absolute;inset:0;display:flex;flex-wrap:wrap;font-size:28px;opacity:0.06;letter-spacing:12px;line-height:60px;pointer-events:none;overflow:hidden;word-break:break-all;padding:1rem}
+.quote-card{position:absolute;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0.6rem 0.9rem;max-width:160px;backdrop-filter:blur(4px)}
+.quote-card p{font-size:10px;color:rgba(255,255,255,0.85);line-height:1.4;font-style:italic}
+.quote-card span{font-size:9px;color:rgba(255,255,255,0.55);display:block;margin-top:8px}
+.login-box{background:#fff;border-radius:20px;padding:1.5rem 1.75rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.25);position:relative;z-index:1}
+.login-logo{text-align:center;margin-bottom:1rem}
+.login-icon{width:48px;height:48px;border-radius:12px;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-accent);margin:0 auto 0.5rem}
+.login-lib-name{font-size:16px;font-weight:700}
+.login-lib-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.field{margin-bottom:0.65rem}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px}
+.field input{width:100%;padding:0.55rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111}
+.field input:focus{border-color:var(--fill-accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.field-hint{font-size:11px;color:var(--text-muted);margin-top:4px}
+.login-btn{width:100%;padding:0.7rem;background:var(--fill-accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:0.25rem}
+.login-btn:hover{background:#1d4ed8}
+.err-box{background:var(--bg-danger);color:var(--text-danger);border:1px solid var(--border-danger);border-radius:var(--radius);padding:0.55rem 0.85rem;font-size:13px;margin-bottom:0.75rem}
+.login-foot{font-size:11px;color:rgba(255,255,255,0.5);margin-top:1.5rem;text-align:center}
+
+/* loading overlay */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;z-index:999;flex-direction:column;gap:0.75rem}
+.loading-overlay p{font-size:14px;color:var(--text-secondary)}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--fill-accent);border-radius:50%;animation:spin 0.7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* hero */
+.hero{background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:3.5rem 2rem 2.5rem;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:500;margin-bottom:1.25rem}
+.hero-title{font-size:clamp(26px,5vw,44px);font-weight:700;letter-spacing:-0.5px}
+.hero-sub{font-size:14px;opacity:0.7;margin-top:0.4rem}
+.hero-div{width:50px;height:3px;background:rgba(255,255,255,0.35);border-radius:2px;margin:1.25rem auto}
+.hero-welcome{font-size:13px;opacity:0.85;background:rgba(255,255,255,0.12);display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;border:1px solid rgba(255,255,255,0.2)}
+.cards-section{flex:1;padding:2rem;max-width:900px;margin:0 auto;width:100%}
+.cards-label{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:1.25rem}
+.cards-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+@media(max-width:640px){.cards-grid{grid-template-columns:1fr 1fr}}
+.ccard{background:#fff;border:0.5px solid var(--border);border-radius:16px;padding:1.75rem 1.5rem;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s;position:relative}
+.ccard:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.10)}
+.ccard-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;margin-bottom:1rem}
+.ccard-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.ccard-desc{font-size:13px;color:var(--text-secondary);line-height:1.5}
+.ccard-arr{position:absolute;top:1.1rem;right:1.1rem;font-size:17px;color:var(--text-muted)}
+.ccard:hover .ccard-arr{color:var(--fill-accent)}
+
+/* nav */
+.topnav{display:flex;align-items:center;border-bottom:0.5px solid var(--border);padding:0 1.5rem;background:#fff;position:sticky;top:0;z-index:50}
+.topnav-left{display:flex;align-items:center;flex:1}
+.topnav-right{display:flex;align-items:center;gap:8px;margin-left:auto}
+.nav-back{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text-secondary);cursor:pointer;padding:0.85rem 0.75rem 0.85rem 0;border-right:0.5px solid var(--border);margin-right:0.75rem}
+.nav-back:hover{color:var(--fill-accent)}
+.nav-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
+.nav-pill{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;font-size:13px;font-weight:700;cursor:pointer;border:0.5px solid var(--border-strong);background:var(--surface-1);color:var(--text-secondary);font-family:inherit}
+.nav-pill:hover{background:var(--fill-accent);color:#fff;border-color:var(--fill-accent)}
+.user-chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:var(--text-secondary);background:var(--surface-1);border:0.5px solid var(--border);border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer}
+.user-chip:hover{background:var(--bg-danger);color:var(--text-danger)}
+.uch-av{width:20px;height:20px;border-radius:50%;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--text-accent)}
+.section{padding:2rem 1.5rem;max-width:960px;margin:0 auto;width:100%}
+h2{font-size:20px;font-weight:600;margin-bottom:1rem}
+h3{font-size:15px;font-weight:600;margin-bottom:0.75rem}
+.search-wrap{position:relative;margin-bottom:0.75rem}
+.search-wrap i{position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:15px;pointer-events:none}
+.search-input{width:100%;padding:0.55rem 0.75rem 0.55rem 2.3rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;background:#fff;color:#111;outline:none}
+.search-input:focus{border-color:var(--fill-accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.tcard{background:#fff;border:0.5px solid var(--border);border-radius:12px;overflow-x:auto;width:100%}
+table{width:100%;border-collapse:collapse;font-size:12px;overflow:visible}
+th{text-align:left;font-weight:500;font-size:11px;color:var(--text-secondary);padding:0.4rem 0.5rem;border-bottom:0.5px solid var(--border)}
+td{padding:0.65rem 1rem;border-bottom:0.5px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface-1)}
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500}
+.tag.paid{background:var(--bg-success);color:var(--text-success)}
+.tag.unpaid{background:var(--bg-danger);color:var(--text-danger)}
+.tag.returned{background:var(--bg-success);color:var(--text-success)}
+.tag.active-loan{background:var(--bg-warning);color:var(--text-warning)}
+.tag.issued{background:var(--bg-danger);color:var(--text-danger)}
+.tag.avail{background:var(--bg-success);color:var(--text-success)}
+.idbadge{display:inline-block;font-family:var(--font-mono);font-size:11px;padding:2px 7px;border-radius:4px;background:var(--surface-0);border:0.5px solid var(--border-strong);color:var(--text-secondary)}
+.av{width:32px;height:32px;border-radius:50%;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--text-accent);flex-shrink:0}
+.av.lg{width:44px;height:44px;font-size:15px}
+.mlink{font-weight:500;cursor:pointer;border-bottom:1px dashed var(--border-strong)}
+.mlink:hover{color:var(--fill-accent)}
+.dots-wrap{position:relative;display:inline-block}
+.dropdown{position:fixed;background:#fff;border:0.5px solid var(--border);border-radius:10px;min-width:170px;z-index:400;box-shadow:0 4px 20px rgba(0,0,0,0.12);overflow:hidden}
+.ddi{display:flex;align-items:center;gap:8px;padding:0.6rem 0.9rem;font-size:13px;cursor:pointer;color:var(--text-primary)}
+.ddi:hover{background:var(--surface-1)}
+.ddi.red{color:var(--text-danger)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0.45rem 1rem;font-size:13px;font-weight:500;border:0.5px solid var(--border-strong);border-radius:var(--radius);background:transparent;color:var(--text-primary);cursor:pointer;font-family:inherit}
+.btn:hover{background:var(--surface-1)}
+.btn.pri{background:var(--fill-accent);color:#fff;border-color:var(--fill-accent)}
+.btn.pri:hover{opacity:0.9}
+.btn.dan{background:var(--bg-danger);color:var(--text-danger);border-color:var(--border-danger)}
+.btn.suc{background:var(--bg-success);color:var(--text-success);border-color:var(--border-success)}
+.btn.war{background:var(--bg-warning);color:var(--text-warning);border-color:var(--border-warning)}
+.btn.sm{padding:0.28rem 0.6rem;font-size:12px}
+.iBtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:var(--radius);border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:17px;font-family:inherit}
+.iBtn:hover{background:var(--surface-0);color:var(--text-primary)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;align-items:center;justify-content:center;z-index:200}
+.ov.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:1.75rem;width:480px;max-width:95vw;max-height:92vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,0.15)}
+.modal input,.modal textarea{width:100%;padding:0.55rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111;display:block}
+.modal input:focus,.modal textarea:focus{border-color:var(--fill-accent);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.modal-head h3{margin:0}
+.scan-zone{border:1.5px dashed var(--border-strong);border-radius:12px;padding:1.5rem;text-align:center;background:var(--surface-1);margin-bottom:0.75rem}
+.scan-zone.drag{border-color:var(--fill-accent);background:var(--bg-accent)}
+.kbd{display:inline-block;padding:2px 7px;border:0.5px solid var(--border-strong);border-radius:4px;font-size:11px;font-weight:600;background:#fff;font-family:var(--font-mono)}
+.extracted{max-height:150px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:0.75rem}
+.ex-item{display:flex;align-items:center;gap:8px;padding:0.4rem 0.6rem;border-radius:var(--radius);background:var(--surface-1);font-size:13px}
+.ex-item input[type=checkbox]{width:14px;height:14px;flex-shrink:0;cursor:pointer}
+.divln{display:flex;align-items:center;gap:0.75rem;margin:0.75rem 0;color:var(--text-muted);font-size:12px}
+.divln::before,.divln::after{content:'';flex:1;border-top:0.5px solid var(--border)}
+.brow{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;border-bottom:0.5px solid var(--border)}
+.brow:last-child{border-bottom:none}
+.brow:hover{background:var(--surface-1)}
+.brow.una{opacity:0.5}
+.irow{display:flex;align-items:center;justify-content:space-between;padding:0.65rem 1rem;border-bottom:0.5px solid var(--border)}
+.irow:last-child{border-bottom:none}
+.irow-title{font-size:13px;font-weight:500}
+.irow-meta{font-size:11px;color:var(--text-secondary);margin-top:2px;display:flex;align-items:center;gap:5px}
+.rrow{display:flex;gap:1.25rem;padding:1.4rem 1.5rem;border-bottom:0.5px solid var(--border)}
+.rrow:last-child{border-bottom:none}
+.rnum{font-family:var(--font-mono);font-size:22px;font-weight:700;color:var(--border-strong);min-width:32px;padding-top:2px}
+.rtitle{font-size:14px;font-weight:600;margin-bottom:4px}
+.rbody{font-size:13px;color:var(--text-secondary);line-height:1.65}
+.rbody strong{color:var(--text-primary);font-weight:600}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+.dcard{background:#fff;border:0.5px solid var(--border);border-radius:12px;padding:1.25rem}
+.dcard h3{font-size:14px;margin-bottom:0.85rem;display:flex;align-items:center;gap:6px}
+.empty{text-align:center;padding:2rem;color:var(--text-muted);font-size:13px}
+.full-pg{position:fixed;inset:0;background:var(--surface-0);overflow-y:auto;z-index:100}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem}
+.scard{background:var(--surface-1);border-radius:var(--radius);padding:1rem;text-align:center;border:0.5px solid var(--border)}
+.scard .n{font-size:24px;font-weight:600;margin-bottom:2px}
+.scard .l{font-size:12px;color:var(--text-secondary)}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a18;color:#fff;padding:0.6rem 1.25rem;border-radius:var(--radius);font-size:13px;z-index:500;pointer-events:none;opacity:0;transition:opacity 0.2s}
+.toast.show{opacity:1}
+.footer{text-align:center;padding:1.25rem;font-size:12px;color:var(--text-muted);border-top:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.preview-img{max-width:100%;max-height:120px;border-radius:var(--radius);margin:0 auto 0.75rem;display:block;border:0.5px solid var(--border)}
+.alert{padding:0.6rem 1rem;border-radius:var(--radius);font-size:13px;margin-bottom:0.75rem;border:0.5px solid}
+.alert.err{background:var(--bg-danger);color:var(--text-danger);border-color:var(--border-danger)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading" style="display:none"><div class="spinner"></div><p>Loading library data…</p></div>
+
+<!-- SPLASH PAGE -->
+<div class="page active" id="pg-splash">
+  <div class="login-bg" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden">
+    <!-- Quote cards -->
+    <div class="quote-card" style="top:5%;left:2%"><p>"A reader lives a thousand lives before he dies."</p><span>— George R.R. Martin</span></div>
+<div class="quote-card" style="top:5%;right:2%"><p>"Not all those who wander are lost."</p><span>— J.R.R. Tolkien</span></div>
+
+
+<div class="quote-card" style="bottom:22%;left:2%;max-width:160px"><p>"A book is a dream that you hold in your hands."</p><span>— Neil Gaiman</span></div>
+<div class="quote-card" style="bottom:22%;right:2%;max-width:160px"><p>"Reading is to the mind what exercise is to the body."</p><span>— Joseph Addison</span></div>
+
+    <div style="position:relative;z-index:1;text-align:center;max-width:340px">
+      <div style="margin-bottom:1.5rem">
+        <img src="icon.svg" style="width:90px;height:90px;border-radius:20px;box-shadow:0 8px 32px rgba(109,40,217,0.6)">
+      </div>
+      <div style="font-size:26px;font-weight:700;color:#fff;margin-bottom:6px">BF Block Public Library</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:2.5rem">Salt Lake, Kolkata</div>
+      <button id="splash-get-started" style="width:100%;padding:0.85rem;background:linear-gradient(135deg,#6d28d9,#4f46e5);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:0.75rem">
+        Get Started
+      </button>
+      <button id="splash-install-btn" style="width:100%;padding:0.85rem;background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit">
+        <i class="ti ti-device-mobile-down"></i> Install App on Phone
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="page" id="pg-login">
+  <div class="login-bg">
+    
+    
+    
+    
+    
+    
+    
+    <div class="login-box">
+      <div class="login-logo">
+        <div style="text-align:center;margin-bottom:12px"><img src="icon.svg" style="width:60px;height:60px;border-radius:14px;box-shadow:0 4px 16px rgba(109,40,217,0.5)"></div>
+        <div class="login-lib-name">BF Block Public Library</div>
+        <div class="login-lib-sub">Salt Lake City, Kolkata</div>
+      </div>
+      <div class="alert err" id="login-err" style="display:none"></div>
+      <div class="field"><label>Your name</label><input type="text" id="li-name" placeholder="Enter your full name" autocomplete="off"></div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" id="li-pwd" placeholder="Enter your Member ID (e.g. BF/0679)">
+        <div class="field-hint"><i class="ti ti-info-circle"></i> Your password is your Member ID</div>
+      </div>
+      <button class="login-btn" id="li-btn">Sign in</button>
+      <p style="text-align:right;margin-top:0.75rem;font-size:13px;color:var(--text-secondary)">Not a member yet? <span id="go-signup" style="color:var(--fill-accent);font-weight:600;cursor:pointer;text-decoration:underline">Sign up!!</span></p>
+      <div style="text-align:center;margin-top:1rem">
+        <button id="pwa-install-btn" style="background:#312e81;color:#fff;border:1px solid #6d28d9;padding:0.55rem 1.4rem;font-size:13px;border-radius:20px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px">
+          <i class="ti ti-device-mobile-down"></i> Install App on Phone
+        </button>
+        <div id="pwa-manual-hint" style="display:none;font-size:11px;color:rgba(255,255,255,0.45);margin-top:6px">
+          Tap <strong style="color:rgba(255,255,255,0.7)">⋮</strong> → <strong style="color:rgba(255,255,255,0.7)">Add to Home Screen</strong> in your browser
+        </div>
+      </div>
+    </div>
+    <div class="login-foot">&copy; <span id="yr1"></span> Saltlake BF Block Public Library</div>
+  </div>
+</div>
+
+<!-- SIGNUP PAGE -->
+<div class="page" id="pg-signup">
+  <div class="login-bg" style="align-items:flex-start;padding:2rem">
+    <div style="width:100%;max-width:500px;margin:0 auto;position:relative;z-index:1">
+      <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;cursor:pointer" id="signup-back">
+        <i class="ti ti-arrow-left" style="color:rgba(255,255,255,0.7);font-size:18px"></i>
+        <span style="color:rgba(255,255,255,0.7);font-size:13px">Back to sign in</span>
+      </div>
+      <div style="background:#fff;border-radius:20px;padding:2.5rem 2rem;box-shadow:0 20px 60px rgba(0,0,0,0.25)">
+        <div style="text-align:center;margin-bottom:1.75rem">
+          <div style="width:56px;height:56px;border-radius:14px;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--text-accent);margin:0 auto 0.75rem"><i class="ti ti-user-plus"></i></div>
+          <div style="font-size:17px;font-weight:700">Membership application</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:3px">BF Block Public Library</div>
+        </div>
+        <div class="alert err" id="signup-err" style="display:none"></div>
+        <div class="alert" id="signup-success" style="display:none;background:var(--bg-success);color:var(--text-success);border-color:var(--border-success)"></div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">1. What is your name?</label>
+          <input type="text" id="su-name" placeholder="Enter your full name" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">2. Please share your age</label>
+          <input type="number" id="su-age" placeholder="e.g. 25" min="1" max="120" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:8px">3. Do you live in BF Block?</label>
+          <div style="display:flex;gap:1rem">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;padding:0.6rem 1rem;border:1px solid #d1d5db;border-radius:var(--radius);flex:1;transition:border-color 0.1s" id="su-bf-yes-lbl">
+              <input type="radio" name="su-bf" id="su-bf-yes" value="yes" style="width:16px;height:16px"> Yes
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;padding:0.6rem 1rem;border:1px solid #d1d5db;border-radius:var(--radius);flex:1;transition:border-color 0.1s" id="su-bf-no-lbl">
+              <input type="radio" name="su-bf" id="su-bf-no" value="no" style="width:16px;height:16px"> No
+            </label>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.75rem">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:6px">4. Address</label>
+          <input type="text" id="su-address" placeholder="Enter your full address" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <div style="margin-bottom:1.25rem">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:#374151">5. Mobile Number</label>
+          <input type="tel" id="su-mobile" placeholder="Enter your mobile number" maxlength="10" style="width:100%;padding:0.6rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:14px;font-family:inherit;outline:none;background:#fff;color:#111">
+        </div>
+
+        <button id="su-submit" style="width:100%;padding:0.75rem;background:var(--fill-accent);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+          <i class="ti ti-send"></i> Ask for membership status approval from Admin
+        </button>
+      </div>
+    </div>
+    <div class="login-foot" style="width:100%">&copy; <span id="yr3"></span> Saltlake BF Block Public Library</div>
+  </div>
+</div>
+
+<!-- COVER -->
+<div class="page" id="pg-cover">
+  <div class="hero">
+    <div class="hero-badge"><i class="ti ti-building-library"></i> Library Management System</div>
+    <div class="hero-title">BF Block Public Library</div>
+    <div class="hero-sub">Salt Lake City, Kolkata</div>
+    <div class="hero-div"></div>
+    <div class="hero-welcome" id="cover-welcome"></div>
+  </div>
+  <div class="cards-section"><div class="cards-label">Select a section</div><div class="cards-grid" id="cards-grid"></div></div>
+  <div class="footer"><span>&copy; <span id="yr2"></span> Saltlake BF Block Public Library</span><button class="btn dan sm" id="cover-logout"><i class="ti ti-logout"></i> Sign out</button></div>
+</div>
+
+<!-- BOOKS -->
+<div class="page" id="pg-books">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="books-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-books"></i> Book Catalog</span></div>
+    <div class="topnav-right"><button class="nav-pill" id="books-scan-btn" title="Scan to add books">S</button><div class="user-chip" id="books-logout"><div class="uch-av" id="books-chip-av"></div><span id="books-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <!-- semi-hero -->
+  <div style="background:linear-gradient(135deg,#312e81 0%,#4c1d95 30%,#7c3aed 60%,#6d28d9 100%);color:#fff;padding:2rem 1.5rem 1.5rem;position:relative;overflow:hidden"><div style="position:absolute;inset:0;opacity:0.07;font-size:40px;line-height:70px;letter-spacing:18px;overflow:hidden;pointer-events:none;word-break:break-all;padding:0.5rem">📚📖📕📗📘📙✨📚📖📕📗📘📙⭐📚📖📕📗📘📙💫📚📖📕📗📘📙🌟📚📖📕📗📘📙</div>
+    <div style="max-width:960px;margin:0 auto">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:6px;display:flex;align-items:center;gap:6px"><i class="ti ti-books"></i> Inventory</div>
+      <div style="font-size:clamp(22px,4vw,34px);font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem">Book Catalog</div>
+      <div style="font-size:13px;opacity:0.75">Browse, search and manage the library collection</div>
+      <!-- search bar inside hero -->
+      <div style="position:relative;margin-top:1.25rem">
+        <i class="ti ti-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.6);font-size:15px;pointer-events:none"></i>
+        <input id="book-search" type="text" placeholder="Search by title, author or ID..." style="width:100%;padding:0.65rem 0.75rem 0.65rem 2.4rem;border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:rgba(255,255,255,0.15);color:#fff;backdrop-filter:blur(4px)" oninput="buildBookRows(this.value.toLowerCase())">
+      </div>
+    </div>
+  </div>
+  <div class="section" style="padding-top:1.5rem">
+    <!-- language cards like home page -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.85rem;margin-bottom:1.25rem" id="lang-cards">
+      <div class="lang-card active" data-lang="all">
+        <div class="lang-card-icon" style="background:var(--bg-accent);color:var(--text-accent)"><i class="ti ti-books"></i></div>
+        <div class="lang-card-title">All Books</div>
+        <div class="lang-card-count" id="lc-all">—</div>
+      </div>
+      <div class="lang-card" data-lang="bengali">
+        <div class="lang-card-icon" style="background:#fdf2f8;color:#9d174d"><i class="ti ti-letter-b"></i></div>
+        <div class="lang-card-title">Bengali</div>
+        <div class="lang-card-count" id="lc-bengali">—</div>
+      </div>
+      <div class="lang-card" data-lang="english">
+        <div class="lang-card-icon" style="background:var(--bg-success);color:var(--text-success)"><i class="ti ti-letter-e"></i></div>
+        <div class="lang-card-title">English</div>
+        <div class="lang-card-count" id="lc-english">—</div>
+      </div>
+      <div class="lang-card" data-lang="hindi">
+        <div class="lang-card-icon" style="background:var(--bg-warning);color:var(--text-warning)"><i class="ti ti-letter-h"></i></div>
+        <div class="lang-card-title">Hindi</div>
+        <div class="lang-card-count" id="lc-hindi">—</div>
+      </div>
+    </div>
+    <div class="tcard"><table><thead><tr><th>Book ID</th><th>Title</th><th>Author</th><th>Status</th><th></th></tr></thead><tbody id="book-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- MEMBERS -->
+<div class="page" id="pg-members">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="members-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-users"></i> Members</span></div>
+    <div class="topnav-right"><button class="nav-pill" id="members-scan-btn" title="Scan to add members">S</button><button class="nav-pill" id="members-pay-btn" title="Payment status">P</button><div class="user-chip" id="members-logout"><div class="uch-av" id="members-chip-av"></div><span id="members-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <!-- semi-hero -->
+  <div style="background:linear-gradient(135deg,#1e3a5f 0%,#1a4731 35%,#065f46 65%,#064e3b 100%);color:#fff;padding:2rem 1.5rem 1.5rem;position:relative;overflow:hidden"><div style="position:absolute;inset:0;opacity:0.07;font-size:40px;line-height:70px;letter-spacing:18px;overflow:hidden;pointer-events:none;word-break:break-all;padding:0.5rem">📚👥👨‍👩‍👧‍👦📖👤👥📚📖👨‍🏫📚👥👩‍💼📖📚👨‍🔬👥📚📖👩‍🎨👥📚📖</div>
+    <div style="max-width:960px;margin:0 auto">
+      <div style="font-size:12px;opacity:0.7;margin-bottom:6px;display:flex;align-items:center;gap:6px"><i class="ti ti-users"></i> Inventory</div>
+      <div style="font-size:clamp(22px,4vw,34px);font-weight:700;letter-spacing:-0.5px;margin-bottom:0.5rem">Members</div>
+      <div style="font-size:13px;opacity:0.75">Browse, manage and track library membership</div>
+      <div style="position:relative;margin-top:1.25rem">
+        <i class="ti ti-search" style="position:absolute;left:0.85rem;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.6);font-size:15px;pointer-events:none"></i>
+        <input id="member-search" type="text" placeholder="Search by name or member ID..." oninput="buildMemberRows(this.value.toLowerCase())" style="width:100%;padding:0.65rem 0.75rem 0.65rem 2.4rem;border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:rgba(255,255,255,0.15);color:#fff;backdrop-filter:blur(4px)">
+      </div>
+    </div>
+  </div>
+  <div class="section" style="padding-top:1.5rem">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.85rem;margin-bottom:1.25rem" id="mtype-cards">
+      <div class="lang-card active" data-mtype="all">
+        <div class="lang-card-icon" style="background:var(--bg-success);color:var(--text-success)"><i class="ti ti-users"></i></div>
+        <div class="lang-card-title">All Members</div>
+        <div class="lang-card-count" id="mc-all">—</div>
+      </div>
+      <div class="lang-card" data-mtype="bfite">
+        <div class="lang-card-icon" style="background:#ecfdf5;color:#065f46"><i class="ti ti-home"></i></div>
+        <div class="lang-card-title">BFites</div>
+        <div class="lang-card-count" id="mc-bfite">—</div>
+      </div>
+      <div class="lang-card" data-mtype="nonbfite">
+        <div class="lang-card-icon" style="background:var(--bg-warning);color:var(--text-warning)"><i class="ti ti-map-pin"></i></div>
+        <div class="lang-card-title">Non-BFites</div>
+        <div class="lang-card-count" id="mc-nonbfite">—</div>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:0.75rem"><i class="ti ti-info-circle"></i> Click a member's name to issue a book</p>
+    <div class="tcard"><table><thead><tr><th>Member ID</th><th>Name</th><th>Age</th><th>Address</th><th>Mobile</th><th>Books (last year)</th><th></th></tr></thead><tbody id="member-tbody"></tbody></table></div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="pg-dashboard">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="dash-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-layout-dashboard"></i> My Dashboard</span></div>
+    <div class="topnav-right"><div class="user-chip" id="dash-logout"><div class="uch-av" id="dash-chip-av"></div><span id="dash-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section" id="dash-content"></div>
+</div>
+
+<!-- RULES -->
+<div class="page" id="pg-rules">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="rules-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-book-2"></i> Library Rules</span></div>
+    <div class="topnav-right"><div class="user-chip" id="rules-logout"><div class="uch-av" id="rules-chip-av"></div><span id="rules-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-book-2"></i> Library Rules</h2>
+    <div class="tcard">
+      <div class="rrow"><div class="rnum">01</div><div><div class="rtitle">Annual subscription fee</div><div class="rbody">Members are required to pay <strong>&#8377;500</strong> as a yearly subscription fee to maintain active membership.</div></div></div>
+      <div class="rrow"><div class="rnum">02</div><div><div class="rtitle">Subscription deadline</div><div class="rbody">The subscription must be paid by the <strong>end of January</strong> of the ongoing year. Failure to do so may result in loss of membership.</div></div></div>
+      <div class="rrow"><div class="rnum">03</div><div><div class="rtitle">Book issuance period</div><div class="rbody">The maximum issuance period for any book is <strong>2 weeks</strong> from the date of issue. Books must be returned within this time.</div></div></div>
+      <div class="rrow"><div class="rnum">04</div><div><div class="rtitle">Freedom to issue</div><div class="rbody">Members are free to issue <strong>any book</strong> available in the library catalog, subject to availability.</div></div></div>
+      <div class="rrow"><div class="rnum">05</div><div><div class="rtitle">Book collection after approval</div><div class="rbody">Once a book request is approved by the admin, the member must collect the book by the <strong>next Tuesday between 7:00 PM and 8:00 PM</strong>. Failure to collect within this window will result in the approval being cancelled and the book becoming available for others.</div></div></div>
+    </div>
+    <p style="font-size:12px;color:var(--text-muted);margin-top:1rem;text-align:center">These rules are set by the library administration and are subject to change.</p>
+  </div>
+</div>
+
+<!-- MEMBERSHIP APPLICATIONS PAGE -->
+<div class="page" id="pg-mem-apps">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="memapp-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-user-plus"></i> Membership Applications</span></div>
+    <div class="topnav-right"><div class="user-chip" id="memapp-logout"><div class="uch-av">AD</div>Admin <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-user-plus"></i> Membership Applications</h2>
+    <div class="tcard" style="margin-bottom:1.25rem">
+      <table><thead><tr><th>Name</th><th>Age</th><th>BF Block?</th><th>Address</th><th>Applied on</th><th>Action</th></tr></thead>
+      <tbody id="memapp-pending-tbody"></tbody></table>
+    </div>
+    <h3 style="margin-bottom:0.5rem;color:var(--text-secondary)"><i class="ti ti-history"></i> Past applications</h3>
+    <div class="tcard">
+      <table><thead><tr><th>Name</th><th>Age</th><th>Address</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="memapp-history-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- CHAT PAGE -->
+<div class="page" id="pg-chat">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="chat-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-messages"></i> Chat</span></div>
+    <div class="topnav-right"><div class="user-chip" id="chat-logout"><div class="uch-av" id="chat-chip-av"></div><span id="chat-chip-name"></span> <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div style="display:flex;height:calc(100vh - 52px)">
+    <div style="width:220px;border-right:0.5px solid var(--border);background:var(--surface-2);display:flex;flex-direction:column;flex-shrink:0">
+      <div style="padding:0.75rem;font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;border-bottom:0.5px solid var(--border)">Conversations</div>
+      <div id="chat-sidebar" style="flex:1;overflow-y:auto"></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div style="padding:0.75rem 1rem;border-bottom:0.5px solid var(--border);background:var(--surface-2);font-size:14px;font-weight:600" id="chat-header">Group Chat</div>
+      <div id="chat-messages-box" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.5rem;background:var(--surface-0)"></div>
+      <div style="padding:0.75rem 1rem;border-top:0.5px solid var(--border);background:var(--surface-2);display:flex;gap:0.75rem">
+        <input type="text" id="chat-input" placeholder="Type a message..." style="flex:1;padding:0.55rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111">
+        <button class="btn pri" id="chat-send" style="padding:0.5rem 1rem"><i class="ti ti-send"></i> Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REQUESTS PAGE -->
+<div class="page" id="pg-requests">
+  <nav class="topnav">
+    <div class="topnav-left"><div class="nav-back" id="req-back"><i class="ti ti-arrow-left"></i> Home</div><span class="nav-title"><i class="ti ti-bell"></i> Book Requests</span></div>
+    <div class="topnav-right"><div class="user-chip" id="req-logout"><div class="uch-av">AD</div>Admin <i class="ti ti-logout" style="font-size:12px"></i></div></div>
+  </nav>
+  <div class="section">
+    <h2><i class="ti ti-bell"></i> Book Requests</h2>
+    <div class="tcard" id="req-pending-card" style="margin-bottom:1.25rem">
+      <table><thead><tr><th>Member</th><th>Book</th><th>Requested on</th><th>Action</th></tr></thead>
+      <tbody id="req-pending-tbody"></tbody></table>
+    </div>
+    <h3 style="margin-bottom:0.5rem;color:var(--text-secondary)"><i class="ti ti-history"></i> Past requests</h3>
+    <div class="tcard">
+      <table><thead><tr><th>Member</th><th>Book</th><th>Date</th><th>Status</th></tr></thead>
+      <tbody id="req-history-tbody"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- EDIT BOOK MODAL -->
+<div class="ov" id="ov-edit-book">
+  <div class="modal" style="width:420px">
+    <div class="modal-head"><h3><i class="ti ti-edit"></i> Edit book details</h3><button class="iBtn" id="edit-book-close"><i class="ti ti-x"></i></button></div>
+    <div class="field"><label>Title</label><input type="text" id="edit-b-title" placeholder="Book title"></div>
+    <div class="field"><label>Author</label><input type="text" id="edit-b-author" placeholder="Author name"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+      <div class="field" style="margin:0"><label>Year</label><input type="text" id="edit-b-year" placeholder="e.g. 2008"></div>
+      <div class="field" style="margin:0"><label>Language</label>
+        <select id="edit-b-lang" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111">
+          <option value="english">English</option>
+          <option value="bengali">Bengali</option>
+          <option value="hindi">Hindi</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Book ID</label><input type="text" id="edit-b-id" disabled style="background:var(--surface-1);color:var(--text-muted)"></div>
+    <div class="field">
+      <label>Cover image URL <span style="font-weight:400;color:var(--text-muted)">(paste any image link)</span></label>
+      <div style="display:flex;gap:0.5rem;align-items:center">
+        <input type="text" id="edit-b-cover" placeholder="https://..." style="flex:1">
+        <img id="edit-b-cover-thumb" style="width:44px;height:60px;object-fit:cover;border-radius:4px;border:0.5px solid var(--border);display:none;flex-shrink:0">
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+      <div class="field" style="margin:0"><label>Publisher</label><input type="text" id="edit-b-publisher" placeholder="e.g. Ananda"></div>
+      <div class="field" style="margin:0"><label>Pages</label><input type="text" id="edit-b-pages" placeholder="e.g. 320"></div>
+      <div class="field" style="margin:0"><label>Genre</label><input type="text" id="edit-b-genre" placeholder="e.g. Fiction"></div>
+    </div>
+    <div class="field"><label>Description</label><textarea id="edit-b-desc" placeholder="Write a short description..." rows="3" style="resize:vertical;width:100%;padding:0.55rem 0.75rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none"></textarea></div>
+    <div class="alert err" id="edit-b-err" style="display:none"></div>
+    <div id="edit-b-preview" style="display:none;margin-bottom:0.75rem;padding:0.75rem;background:var(--surface-1);border-radius:var(--radius);border:0.5px solid var(--border)">
+      <img id="edit-b-cover-preview" style="width:50px;border-radius:4px;float:left;margin-right:0.75rem">
+      <div id="edit-b-info-preview" style="font-size:12px;color:var(--text-secondary);line-height:1.5"></div>
+      <div style="clear:both"></div>
+    </div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn" id="edit-b-fetch"><i class="ti ti-refresh"></i> Fetch from Google Books</button>
+      <button class="btn" id="edit-b-cancel">Cancel</button>
+      <button class="btn pri" id="edit-b-save"><i class="ti ti-check"></i> Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MEMBER MODAL -->
+<div class="ov" id="ov-edit-member">
+  <div class="modal" style="width:400px">
+    <div class="modal-head"><h3><i class="ti ti-edit"></i> Edit member</h3><button class="iBtn" id="edit-member-close"><i class="ti ti-x"></i></button></div>
+    <div class="field"><label>Name</label><input type="text" id="edit-m-name" placeholder="Full name"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:1rem">
+      <div class="field" style="margin:0"><label>Age</label><input type="text" id="edit-m-age" placeholder="e.g. 25"></div>
+      <div class="field" style="margin:0"><label>Member ID</label><input type="text" id="edit-m-id" placeholder="BF-0679" disabled style="background:var(--surface-1);color:var(--text-muted)"></div>
+    </div>
+    <div class="field"><label>Address</label><input type="text" id="edit-m-address" placeholder="e.g. BF Block, Salt Lake"></div>
+    <div class="field"><label>Mobile Number</label><input type="tel" id="edit-m-mobile" placeholder="e.g. 9876543210" maxlength="10"></div>
+    <div class="alert err" id="edit-m-err" style="display:none"></div>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn" id="edit-m-cancel">Cancel</button>
+      <button class="btn pri" id="edit-m-save"><i class="ti ti-check"></i> Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIBRARIAN CHOICE MODAL -->
+<div class="ov" id="ov-librarian-choice">
+  <div class="modal" style="width:360px;text-align:center">
+    <div class="modal-head"><h3><i class="ti ti-shield-check"></i> Login as</h3></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1.5rem">You have librarian access. How would you like to log in?</p>
+    <div style="display:flex;gap:0.75rem;justify-content:center">
+      <button class="btn" id="lib-login-member" style="flex:1;padding:0.75rem"><i class="ti ti-user"></i><br><span style="font-size:12px">Member</span></button>
+      <button class="btn pri" id="lib-login-librarian" style="flex:1;padding:0.75rem"><i class="ti ti-shield-check"></i><br><span style="font-size:12px">Librarian</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBER PASSWORD MODAL -->
+<div class="ov" id="ov-mem-pwd">
+  <div class="modal" style="width:360px">
+    <div class="modal-head"><h3><i class="ti ti-lock"></i> Confirm your identity</h3><button class="iBtn" id="mem-pwd-close"><i class="ti ti-x"></i></button></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1rem">Please enter your Member ID to continue.</p>
+    <div class="alert err" id="mem-pwd-err" style="display:none"></div>
+    <input type="password" id="mem-pwd-inp" placeholder="Enter your Member ID" style="margin-bottom:1rem">
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn" id="mem-pwd-cancel">Cancel</button>
+      <button class="btn pri" id="mem-pwd-submit">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- COVER PROMPT MODAL -->
+<div class="ov" id="ov-cover-prompt">
+  <div class="modal" style="width:400px">
+    <div class="modal-head"><h3><i class="ti ti-photo"></i> Add book cover</h3><button class="iBtn" id="cover-prompt-skip"><i class="ti ti-x"></i></button></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:0.75rem">No cover found for <strong id="cover-prompt-title"></strong>. Paste an image URL or skip.</p>
+    <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.75rem">
+      <input type="text" id="cover-prompt-url" placeholder="https://... (paste image URL)" style="flex:1">
+      <img id="cover-prompt-thumb" style="width:44px;height:60px;object-fit:cover;border-radius:4px;border:0.5px solid var(--border);display:none;flex-shrink:0">
+    </div>
+    <p style="font-size:11px;color:var(--text-muted);margin-bottom:1rem"><i class="ti ti-info-circle"></i> Google Images → open image in new tab → copy URL</p>
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end">
+      <button class="btn" id="cover-prompt-skip2">Skip</button>
+      <button class="btn pri" id="cover-prompt-save"><i class="ti ti-check"></i> Save cover</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PASSWORD MODAL -->
+<div class="ov" id="ov-pwd">
+  <div class="modal" style="width:360px">
+    <div class="modal-head"><h3><i class="ti ti-lock"></i> Admin access required</h3><button class="iBtn" id="pwd-close"><i class="ti ti-x"></i></button></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1rem">Hi admin, please enter the password to continue.</p>
+    <div class="alert err" id="pwd-err" style="display:none"></div>
+    <input type="password" id="pwd-inp" placeholder="Enter admin password" style="margin-bottom:1rem">
+    <div style="display:flex;gap:0.75rem;justify-content:flex-end"><button class="btn" id="pwd-cancel">Cancel</button><button class="btn pri" id="pwd-submit">Unlock</button></div>
+  </div>
+</div>
+
+<!-- ISSUE BOOK MODAL -->
+<div class="ov" id="ov-issue">
+  <div class="modal">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:10px"><div class="av lg" id="issue-av"></div><div><div style="font-size:15px;font-weight:600" id="issue-name"></div><div style="margin-top:3px"><span class="idbadge" id="issue-id"></span></div></div></div>
+      <button class="iBtn" id="issue-close"><i class="ti ti-x"></i></button>
+    </div>
+    <h3 style="margin-bottom:0.5rem"><i class="ti ti-books"></i> Issue a book</h3>
+    <input type="text" id="issue-search" placeholder="Search by title, author or ID..." style="margin-bottom:0.75rem">
+    <div class="tcard" id="issue-book-list" style="max-height:220px;overflow-y:auto"></div>
+    <h3 style="margin-top:1.25rem;margin-bottom:0.5rem"><i class="ti ti-clock"></i> Currently issued</h3>
+    <div id="issue-current"></div>
+  </div>
+</div>
+
+<!-- SCAN MODAL -->
+<div class="ov" id="ov-scan">
+  <div class="modal">
+    <div class="modal-head"><h3 id="scan-title"><i class="ti ti-scan"></i></h3><button class="iBtn" id="scan-close"><i class="ti ti-x"></i></button></div>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:1rem" id="scan-hint"></p>
+    <div id="scan-idle">
+      <div class="scan-zone" id="scan-zone">
+        <i class="ti ti-clipboard" style="font-size:32px;color:var(--text-muted)"></i>
+        <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:0.5rem"><span class="kbd">Ctrl</span><span style="font-size:12px;color:var(--text-muted)">+</span><span class="kbd">V</span><span style="font-size:13px;color:var(--text-secondary)">to paste a screenshot</span></div>
+        <p style="font-size:12px;margin-top:6px;color:var(--text-secondary)">or drag &amp; drop / <label for="scan-file" style="color:var(--text-accent);cursor:pointer;text-decoration:underline">browse file</label></p>
+        <input type="file" id="scan-file" accept="image/*" style="display:none">
+      </div>
+      <div class="divln">or type manually</div>
+      <div id="scan-book-fields">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem">
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Title</label><input type="text" id="scan-m-title" placeholder="e.g. Clean Code" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Author</label><input type="text" id="scan-m-author" placeholder="e.g. Robert C. Martin" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Year</label><input type="text" id="scan-m-year" placeholder="e.g. 2008" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+          <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Language</label>
+            <select id="scan-m-lang" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111">
+              <option value="english">English</option>
+              <option value="bengali">Bengali</option>
+              <option value="hindi">Hindi</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div id="scan-member-fields" style="display:none;margin-bottom:0.5rem">
+        <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Member name</label><input type="text" id="scan-m-name" placeholder="e.g. Arjun Sharma" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+      </div>
+      <div id="scan-payupdate-fields" style="display:none;margin-bottom:0.5rem">
+        <div><label style="font-size:11px;font-weight:600;color:var(--text-secondary);display:block;margin-bottom:3px">Member name</label><input type="text" id="scan-m-payname" placeholder="e.g. Priya Mehta" style="width:100%;padding:0.5rem 0.65rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:13px;font-family:inherit;outline:none;background:#fff;color:#111"></div>
+      </div>
+      <button class="btn pri" id="scan-manual-add" style="width:100%;margin-top:0.25rem"><i class="ti ti-plus"></i> Add entry</button>
+    </div>
+    <div id="scan-scanning" style="display:none;text-align:center;padding:1.5rem">
+      <img id="scan-preview" style="max-height:110px;border-radius:var(--radius);margin-bottom:0.75rem;border:0.5px solid var(--border)">
+      <p style="font-size:13px;color:var(--text-secondary)"><i class="ti ti-loader"></i> Scanning with OCR…</p>
+    </div>
+    <div id="scan-done" style="display:none">
+      <img id="scan-preview2" style="max-height:110px;border-radius:var(--radius);margin-bottom:0.75rem;border:0.5px solid var(--border);display:block;margin-left:auto;margin-right:auto">
+      <p style="font-size:12px;color:var(--text-secondary);margin-bottom:0.4rem">Review and edit titles and authors before adding:</p>
+      <div class="extracted" id="scan-results"></div>
+      <div style="display:flex;justify-content:space-between;margin-top:1rem">
+        <button class="btn" id="scan-again"><i class="ti ti-arrow-left"></i> Paste again</button>
+        <button class="btn pri" id="scan-confirm"><i class="ti ti-check"></i> Add selected</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYMENT PAGE -->
+<div class="full-pg" id="pg-payment" style="display:none">
+  <div style="padding:2rem 1.5rem;max-width:860px;margin:0 auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+      <div><h2 style="margin-bottom:3px"><i class="ti ti-credit-card"></i> Annual subscription status</h2><p style="font-size:13px;color:var(--text-secondary)">Admin view</p></div>
+      <div style="display:flex;gap:0.75rem"><button class="btn" id="pay-scan"><i class="ti ti-scan"></i> Scan to mark paid</button><button class="btn dan" id="pay-close"><i class="ti ti-x"></i> Close</button></div>
+    </div>
+    <div class="g2" id="pay-stats"></div>
+    <h3 style="color:var(--text-danger);margin-bottom:0.5rem"><i class="ti ti-alert-circle"></i> Payment pending</h3>
+    <div class="tcard" style="margin-bottom:1.25rem"><table><thead><tr><th>Member ID</th><th>Name</th><th>Action</th></tr></thead><tbody id="pay-unpaid"></tbody></table></div>
+    <h3 style="color:var(--text-success);margin-bottom:0.5rem"><i class="ti ti-circle-check"></i> Paid members</h3>
+    <div class="tcard"><table><thead><tr><th>Member ID</th><th>Name</th><th>Status</th></tr></thead><tbody id="pay-paid"></tbody></table></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAFhmXBSvA7282fXz-y_zXlFK-o4yek1hM",
+  authDomain: "library-368b4.firebaseapp.com",
+  projectId: "library-368b4",
+  storageBucket: "library-368b4.firebasestorage.app",
+  messagingSenderId: "946066332984",
+  appId: "1:946066332984:web:f93a7730a21612546975cd"
+};
+
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
+
+// ── Helpers ────────────────────────────────────────────────────────────────────
+var ADMIN_PWD = "adminBF";
+var thisYear  = new Date().getFullYear();
+
+function ini(n){ return (n||"?").split(" ").map(function(w){return w[0];}).join("").toUpperCase().slice(0,2); }
+function fmt(iso){ return new Date(iso).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}); }
+function td(){ return new Date().toISOString().split("T")[0]; }
+function inYear(iso){ var c=new Date(); c.setFullYear(c.getFullYear()-1); return new Date(iso)>=c; }
+function nextTuesday(){
+  var d=new Date();
+  var day=d.getDay(); // 0=Sun,1=Mon,2=Tue...
+  var diff=day<=2?(2-day):(9-day); // days until next Tuesday
+  if(diff===0) diff=7; // if today is Tuesday, next Tuesday
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().split("T")[0];
+}
+function isPastCollectionDeadline(collectBy){
+  return new Date() > new Date(collectBy);
+}
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(function(){t.classList.remove("show");},2500); }
+function loading(show){ document.getElementById("loading").style.display = show ? "flex" : "none"; }
+
+// ── Local cache ────────────────────────────────────────────────────────────────
+var BOOKS   = [];   // [{id, title, author, year}, ...]
+var MEMBERS = [];   // [{id, name, paid, paidYear, books:[{bid,title,issuedOn,ret}]}, ...]
+var REQUESTS = [];  // [{id, memberId, memberName, bookId, bookTitle, status, createdOn}]
+var MEM_APPS = [];
+var MESSAGES = [];
+
+function issuedTo(bid){
+  for(var i=0;i<MEMBERS.length;i++){var m=MEMBERS[i];for(var j=0;j<m.books.length;j++){if(m.books[j].bid===bid&&!m.books[j].ret)return m.name;}} return null;
+}
+function isBlockedFor(bid){
+  // returns member name if book is approved-blocked but not yet collected (and deadline not passed)
+  for(var i=0;i<REQUESTS.length;i++){
+    var r=REQUESTS[i];
+    if(r.bookId===bid && r.status==="approved" && !r.collected){
+      if(!isPastCollectionDeadline(r.collectBy)) return r.memberName;
+      // deadline passed — auto-expire the block
+    }
+  }
+  return null;
+}
+async function expireOldBlocks(){
+  // called on load — remove approvals that weren't collected by Tuesday
+  for(var i=0;i<REQUESTS.length;i++){
+    var r=REQUESTS[i];
+    if(r.status==="approved" && !r.collected && r.collectBy && isPastCollectionDeadline(r.collectBy)){
+      r.status="expired";
+      await updateRequest(r);
+    }
+  }
+  saveToLocal();
+}
+
+// ── Firestore helpers ──────────────────────────────────────────────────────────
+async function saveBook(book){
+  try{ await db.collection("books").doc(book.id).set({title:book.title,author:book.author,year:book.year,lang:book.lang||"english",cover:book.cover||"",description:book.description||"",publisher:book.publisher||"",pageCount:book.pageCount||"",categories:book.categories||"",rating:book.rating||""}); console.log("Book saved:",book.id); }
+  catch(e){ console.error("saveBook:",e); alert("Error saving book: "+e.message); throw e; }
+}
+async function deleteBook(id){
+  try{ await db.collection("books").doc(id).delete(); } catch(e){ console.error(e); }
+}
+async function saveMember(m){
+  try{ await db.collection("members").doc(m.id).set({name:m.name,age:m.age||null,address:m.address||"",paid:m.paid,paidYear:m.paidYear||null,books:m.books}); console.log("Member saved:",m.id); }
+  catch(e){ console.error("saveMember:",e); alert("Error saving member: "+e.message); throw e; }
+}
+async function deleteMember(id){
+  try{ await db.collection("members").doc(id).delete(); } catch(e){ console.error(e); }
+}
+async function updateMember(m){
+  try{ await db.collection("members").doc(m.id).set({name:m.name,age:m.age||null,address:m.address||"",paid:m.paid,paidYear:m.paidYear||null,books:m.books}); }
+  catch(e){ console.error("updateMember:",e); alert("Error updating: "+e.message); throw e; }
+}
+async function saveRequest(r){
+  try{ await db.collection("requests").doc(r.id).set(r); }
+  catch(e){ console.error("saveRequest:",e); alert("Error saving request: "+e.message); throw e; }
+}
+async function saveMemberApp(a){
+  try{ await db.collection("mem_apps").doc(a.id).set(a); }
+  catch(e){ console.error("saveMemberApp:",e); alert("Error submitting application: "+e.message); throw e; }
+}
+async function updateMemberApp(a){
+  try{ await db.collection("mem_apps").doc(a.id).set(a); }
+  catch(e){ console.error(e); }
+}
+async function sendMessage(msg){
+  try{ await db.collection("messages").doc(msg.id).set(msg); }
+  catch(e){ throw e; }
+}
+async function updateRequest(r){
+  try{ await db.collection("requests").doc(r.id).set(r); }
+  catch(e){ console.error("updateRequest:",e); }
+}
+async function deleteRequest(id){
+  try{ await db.collection("requests").doc(id).delete(); }
+  catch(e){ console.error("deleteRequest:",e); }
+}
+
+// ── Load all data from Firestore ───────────────────────────────────────────────
+function saveToLocal(){
+  try{
+    localStorage.setItem("bf_books", JSON.stringify(BOOKS));
+    localStorage.setItem("bf_members", JSON.stringify(MEMBERS));
+    localStorage.setItem("bf_requests", JSON.stringify(REQUESTS));
+    localStorage.setItem("bf_mem_apps", JSON.stringify(MEM_APPS));
+    localStorage.setItem("bf_messages", JSON.stringify(MESSAGES));
+  } catch(e){}
+}
+function loadFromLocal(){
+  try{
+    var b = localStorage.getItem("bf_books");
+    var m = localStorage.getItem("bf_members");
+    var r = localStorage.getItem("bf_requests");
+    var a = localStorage.getItem("bf_mem_apps");
+    if(b) BOOKS = JSON.parse(b);
+    if(m) MEMBERS = JSON.parse(m);
+    if(r) REQUESTS = JSON.parse(r);
+    if(a) MEM_APPS = JSON.parse(a);
+    var ms=localStorage.getItem("bf_messages"); if(ms) MESSAGES=JSON.parse(ms);
+    return !!(b||m);
+  } catch(e){ return false; }
+}
+
+async function loadData(){
+  // Load local cache silently
+  loadFromLocal();
+
+  try {
+    var bSnap = await db.collection("books").get();
+    BOOKS = [];
+    bSnap.forEach(function(d){ BOOKS.push(Object.assign({id:d.id}, d.data())); });
+
+    var mSnap = await db.collection("members").get();
+    MEMBERS = [];
+    mSnap.forEach(function(d){
+      var m = Object.assign({id:d.id}, d.data());
+      if(!m.books) m.books = [];
+      if(m.paid && m.paidYear && m.paidYear < thisYear){
+        m.paid = false; m.paidYear = null;
+        updateMember(m);
+      }
+      MEMBERS.push(m);
+    });
+    var rSnap = await db.collection("requests").get();
+    REQUESTS = [];
+    rSnap.forEach(function(d){ REQUESTS.push(Object.assign({id:d.id}, d.data())); });
+
+    var aSnap = await db.collection("mem_apps").get();
+    MEM_APPS = [];
+    aSnap.forEach(function(d){ MEM_APPS.push(Object.assign({id:d.id}, d.data())); });
+    try{
+      var mSnap2=await db.collection("messages").orderBy("createdOn").get();
+      MESSAGES=[]; mSnap2.forEach(function(d){MESSAGES.push(Object.assign({id:d.id},d.data()));});
+      db.collection("messages").orderBy("createdOn").onSnapshot(function(snap){
+        MESSAGES=[]; snap.forEach(function(d){MESSAGES.push(Object.assign({id:d.id},d.data()));});
+        saveToLocal(); if(document.getElementById("chat-messages-box")) refreshChatMessages();
+      });
+    } catch(e){ console.log("Messages index needed in Firestore"); }
+    saveToLocal();
+    checkReminders();
+    await expireOldBlocks();
+  } catch(e){ console.error(e); toast("Error loading from Firebase. Showing cached data."); return; }
+}
+
+// ── ID generators ──────────────────────────────────────────────────────────────
+function nextMemberId(){
+  if(!MEMBERS.length) return "BF-0679";
+  var nums = MEMBERS.map(function(m){ return parseInt(m.id.replace(/BF[-\/]/,""))||0; });
+  return "BF-"+String(Math.max.apply(null,nums)+1).padStart(4,"0");
+}
+function nextBookId(author){
+  var last=(author.split(" ").pop()||"UNK").replace(/[^a-zA-Z]/g,"").slice(0,3).toUpperCase();
+  var nums = BOOKS.map(function(b){ return parseInt(b.id.split("-")[1])||0; });
+  var next = nums.length ? Math.max.apply(null,nums)+1 : 700;
+  return "BF-"+String(next).padStart(4,"0")+"-"+last;
+}
+
+// ── Pages ──────────────────────────────────────────────────────────────────────
+document.getElementById("yr1").textContent = thisYear;
+document.getElementById("yr2").textContent = thisYear;
+
+var session = { member: null };
+var pendingAction = null;
+var activeScanType = null;
+var scanBookLang = "english";
+var activeLang = "all";
+var activeMemberType = "all";
+var activeIssueId = null;
+var openDropdown = null;
+
+function showPage(id){ document.querySelectorAll(".page").forEach(function(p){p.classList.remove("active");}); document.getElementById(id).classList.add("active"); }
+function goHome(){ buildCover(); showPage("pg-cover"); }
+function logout(){ session.member=null; session.librarianMode=false; showPage("pg-login"); document.getElementById("li-name").value=""; document.getElementById("li-pwd").value=""; document.getElementById("login-err").style.display="none"; }
+
+function updateChips(){
+  var name=session.member?session.member.name:"Admin";
+  var av=session.member?ini(session.member.name):"AD";
+  ["books","members","dash","rules"].forEach(function(pg){
+    var an=document.getElementById(pg+"-chip-av"); var nn=document.getElementById(pg+"-chip-name");
+    if(an)an.textContent=av; if(nn)nn.textContent=name;
+  });
+  // Show S and P only for admin or librarian
+  var isAdminOrLib=!session.member||(session.member&&session.member.isLibrarian&&session.librarianMode);
+  var scanBtn=document.getElementById("books-scan-btn");
+  var payBtn=document.getElementById("members-pay-btn");
+  if(scanBtn) scanBtn.style.display=isAdminOrLib?"":"none";
+  if(payBtn) payBtn.style.display=isAdminOrLib?"":"none";
+}
+
+// ── Login ──────────────────────────────────────────────────────────────────────
+document.getElementById("li-btn").addEventListener("click", doLogin);
+document.getElementById("li-pwd").addEventListener("keydown", function(e){ if(e.key==="Enter") doLogin(); });
+
+function doLogin(){
+  var name=document.getElementById("li-name").value.trim();
+  var pwd=document.getElementById("li-pwd").value.trim();
+  var err=document.getElementById("login-err"); err.style.display="none";
+  if(!name){if(err){err.textContent="Please enter your name.";err.style.display="block";}return;}
+  if(!pwd){err.textContent="Please enter your password.";err.style.display="block";return;}
+  if(pwd===ADMIN_PWD){session.member=null;updateChips();buildCover();showPage("pg-cover");return;}
+  var pwdUp=pwd.toUpperCase();
+  var found=null;
+  for(var i=0;i<MEMBERS.length;i++){if(MEMBERS[i].id.toUpperCase()===pwdUp){found=MEMBERS[i];break;}}
+  if(!found){err.textContent="Member ID not found.";err.style.display="block";return;}
+  if(found.name.toLowerCase()!==name.toLowerCase()){err.textContent="Name does not match this Member ID.";err.style.display="block";return;}
+  if(found.isLibrarian){
+    // Show choice modal
+    document.getElementById("ov-librarian-choice").classList.add("open");
+    // Store found member temporarily
+    window._pendingMember=found;
+  } else {
+    session.member=found;updateChips();buildCover();showPage("pg-cover");
+  }
+}
+
+// ── Cover ──────────────────────────────────────────────────────────────────────
+function buildCover(){
+  var isAdmin=isAdminOrLibrarian();
+  document.getElementById("cover-welcome").innerHTML='<i class="ti ti-user-check"></i> '+(isAdmin?"Welcome, Admin":"Welcome, "+session.member.name);
+  var grid=document.getElementById("cards-grid"); grid.innerHTML="";
+  var pendingCount = REQUESTS.filter(function(r){return r.status==="pending";}).length;
+  var cards=[
+    {pg:"pg-books",  color:"var(--bg-accent)", ico:"var(--text-accent)", icon:"ti-books",           title:"Book Catalog",  desc:"Browse all books and check availability."},
+    {pg:"pg-members",color:"var(--bg-success)",ico:"var(--text-success)",icon:"ti-users",            title:"Members",       desc:"View members and borrowing history."},
+    {pg:"pg-rules",  color:"var(--bg-warning)", ico:"var(--text-warning)",icon:"ti-book-2",           title:"Library Rules", desc:"Subscription fees and borrowing policy."},
+  ];
+  var pendingApps=MEM_APPS.filter(function(a){return a.status==="pending";}).length;
+  if(isAdmin) cards.splice(2,0,{pg:"pg-requests",color:"var(--bg-danger)",ico:"var(--text-danger)",icon:"ti-bell",title:"Book Requests"+(pendingCount?" ("+pendingCount+")":""),desc:pendingCount>0?pendingCount+" pending request"+(pendingCount!==1?"s":"")+" awaiting approval.":"No pending requests."});
+  if(isAdmin) cards.push({pg:"pg-mem-apps",color:"var(--bg-accent)",ico:"var(--text-accent)",icon:"ti-user-plus",title:"Membership Applications"+(pendingApps?" ("+pendingApps+")":""),desc:pendingApps>0?pendingApps+" application"+(pendingApps!==1?"s":"")+" awaiting review.":"No pending applications at the moment."});
+  var unreadCount=MESSAGES.filter(function(m){if(!session.member)return m.type==="private"&&m.to==="admin"&&!m.read;return((m.type==="private"&&m.to===session.member.id)||(m.type==="group"))&&m.senderId!==session.member.id&&!m.read;}).length;
+  cards.push({pg:"pg-chat",color:"#f0f9ff",ico:"#0369a1",icon:"ti-messages",title:"Chat"+(unreadCount?" ("+unreadCount+")":""),desc:!session.member?"Message members privately or in group chat.":"Chat with admin or join the group chat."});
+  if(!isAdmin) cards.splice(1,0,{pg:"pg-dashboard",color:"var(--bg-accent)",ico:"var(--text-accent)",icon:"ti-layout-dashboard",title:"My Dashboard",desc:"Your issued books and payment status."});
+  cards.forEach(function(c){
+    var d=document.createElement("div"); d.className="ccard";
+    d.innerHTML='<div class="ccard-icon" style="background:'+c.color+';color:'+c.ico+'"><i class="ti '+c.icon+'"></i></div><div class="ccard-title">'+c.title+'</div><div class="ccard-desc">'+c.desc+'</div><i class="ti ti-arrow-right ccard-arr"></i>';
+    d.addEventListener("click",function(){
+      if(c.pg==="pg-books"){activeLang="all";showPage("pg-books");setTimeout(function(){document.querySelectorAll(".lang-card").forEach(function(t){t.classList.remove("active");});var el=document.querySelector(".lang-card[data-lang='all']");if(el)el.classList.add("active");buildBookRows("");},50);}
+      else if(c.pg==="pg-members"){activeMemberType="all";showPage("pg-members");setTimeout(function(){document.querySelectorAll("[data-mtype]").forEach(function(t){t.classList.remove("active");});var el=document.querySelector("[data-mtype='all']");if(el)el.classList.add("active");buildMemberRows("");},50);}
+      else if(c.pg==="pg-dashboard"){requestMemberPwd("dashboard");}
+      else if(c.pg==="pg-requests"){buildRequests();showPage("pg-requests");}
+      else if(c.pg==="pg-mem-apps"){buildMemApps();showPage("pg-mem-apps");}
+      else if(c.pg==="pg-chat"){buildChat("group");showPage("pg-chat");}
+      else showPage("pg-rules");
+    });
+    grid.appendChild(d);
+  });
+}
+document.getElementById("cover-logout").addEventListener("click",logout);
+
+// ── Books ──────────────────────────────────────────────────────────────────────
+document.getElementById("books-back").addEventListener("click",goHome);
+document.addEventListener("click",function(e){
+  if(e.target.closest("#su-done-back")){ showPage("pg-login"); return; }
+  if(e.target.closest("[data-mtype]")){
+    var btn=e.target.closest("[data-mtype]");
+    document.querySelectorAll("[data-mtype]").forEach(function(t){t.classList.remove("active");});
+    btn.classList.add("active");
+    activeMemberType=btn.dataset.mtype;
+    buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+  }
+});
+document.addEventListener("click",function(e){
+  if(e.target.closest(".lang-card")){
+    var btn=e.target.closest(".lang-card");
+    document.querySelectorAll(".lang-card").forEach(function(t){t.classList.remove("active");});
+    btn.classList.add("active");
+    activeLang=btn.dataset.lang;
+    buildBookRows(document.getElementById("book-search").value.toLowerCase());
+  }
+});
+document.getElementById("books-logout").addEventListener("click",logout);
+document.getElementById("books-scan-btn").addEventListener("click",function(){openPwd("scan-book");});
+document.addEventListener("input",function(e){if(e.target&&e.target.id==="book-search"){buildBookRows(e.target.value.toLowerCase());}});
+
+function buildBookRows(f){
+  var tbody=document.getElementById("book-tbody"); tbody.innerHTML="";
+  var baseList=activeLang==="all"?BOOKS:BOOKS.filter(function(b){return (b.lang||"english")===activeLang;});
+  var list=f?baseList.filter(function(b){return b.title.toLowerCase().indexOf(f)!==-1||b.author.toLowerCase().indexOf(f)!==-1||b.id.toLowerCase().indexOf(f)!==-1;}):baseList;
+  if(!list.length){tbody.innerHTML='<tr><td colspan="6" class="empty">'+(f?"No books match.":"No books yet.")+'</td></tr>';return;}
+  var isAdmin=!session.member;
+  list.forEach(function(b){
+    var it=issuedTo(b.id);
+    var blocked=isBlockedFor(b.id);
+    var returnDate="";
+    if(it){for(var mi=0;mi<MEMBERS.length;mi++){for(var bi2=0;bi2<MEMBERS[mi].books.length;bi2++){var mb=MEMBERS[mi].books[bi2];if(mb.bid===b.id&&!mb.ret){var due=new Date(mb.issuedOn);due.setDate(due.getDate()+14);returnDate=due.toISOString().split("T")[0];break;}}if(returnDate)break;}}
+    var isAdminCat=!session.member;
+    var st=it?'<span class="tag issued"><i class="ti ti-lock"></i> Issued</span>'
+              +(isAdminCat?'<div style="font-size:11px;color:var(--text-muted);margin-top:3px">to: '+it+'</div>':'')
+              +(returnDate?'<div style="font-size:11px;color:var(--text-warning);margin-top:2px"><i class="ti ti-calendar-due"></i> Return by: '+fmt(returnDate)+'</div>':'')
+            :blocked?'<span class="tag active-loan"><i class="ti ti-calendar-due"></i> Blocked</span><div style="font-size:11px;color:var(--text-muted);margin-top:3px">for: '+blocked+'</div>'
+            :'<span class="tag avail"><i class="ti ti-check"></i> Available</span>';
+    var action="";
+    if(isAdmin){
+      action='<div class="dots-wrap"><button class="iBtn book-dd-btn" data-bid="'+b.id+'"><i class="ti ti-dots-vertical"></i></button></div>';
+    } else {
+      var alreadyRequested=REQUESTS.some(function(r){return r.bookId===b.id&&r.memberId===session.member.id&&r.status==="pending";});
+      var myApproved=REQUESTS.some(function(r){return r.bookId===b.id&&r.memberId===session.member.id&&r.status==="approved"&&!r.collected;});
+      var alreadyIssued=it===session.member.name;
+      var requestBtn="";
+      if(alreadyIssued){
+        requestBtn='<span class="tag returned" style="font-size:11px">You have this</span>';
+      } else if(myApproved){
+        requestBtn='<span class="tag avail" style="font-size:11px"><i class="ti ti-check"></i> Approved — collect by next Tuesday (7–8 PM)</span>';
+      } else if(alreadyRequested){
+        requestBtn='<span class="tag active-loan" style="font-size:11px"><i class="ti ti-clock"></i> Requested</span>';
+      } else if(!it && !blocked){
+        requestBtn='<button class="btn pri sm" data-req="'+b.id+'" data-req-title="'+b.title.replace(/"/g,"&quot;")+'"><i class="ti ti-send"></i> Request</button>';
+      }
+      action='<div style="display:flex;align-items:center;gap:6px">'+requestBtn+'<div class="dots-wrap"><button class="iBtn book-dd-btn" data-bid="'+b.id+'"><i class="ti ti-dots-vertical"></i></button></div></div>';
+    }
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><span class="idbadge">'+b.id+'</span></td><td style="font-weight:500">'+b.title+'</td><td style="color:var(--text-secondary)">'+b.author+'</td><td>'+st+'</td><td>'+action+'</td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".book-dd-btn").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.stopPropagation();
+      document.querySelectorAll(".dropdown").forEach(function(d){d.remove();});
+      var bid=btn.dataset.bid;
+      var book=BOOKS.filter(function(b){return b.id===bid;})[0]; if(!book) return;
+      var isAdminDD=isAdminOrLibrarian();
+      var dd=document.createElement("div"); dd.className="dropdown";
+      dd.innerHTML="";
+      if(!isAdminDD){var di=document.createElement("div");di.className="ddi";di.dataset.bookDetails=bid;di.innerHTML='<i class="ti ti-info-circle"></i> Book details';dd.appendChild(di);}
+      var dv=document.createElement("div");dv.className="ddi";dv.dataset.viewBook=bid;dv.innerHTML='<i class="ti ti-users"></i> Members issued by';dd.appendChild(dv);
+      if(isAdminDD){var de=document.createElement("div");de.className="ddi";de.dataset.editBook=bid;de.innerHTML='<i class="ti ti-edit"></i> Edit book details';dd.appendChild(de);var drem=document.createElement("div");drem.className="ddi red";drem.dataset.delBook=bid;drem.innerHTML='<i class="ti ti-trash"></i> Remove book';dd.appendChild(drem);}
+      dd.querySelectorAll(".ddi").forEach(function(item){
+        item.addEventListener("click",function(e2){
+          e2.stopPropagation();
+          if(item.dataset.bookDetails) openBookDetails(bid);
+          else if(item.dataset.viewBook) openBookIssuedHistory(bid);
+          else if(item.dataset.editBook) openEditBook(bid);
+          dd.remove();
+        });
+      });
+      document.body.appendChild(dd);
+      var rect=btn.getBoundingClientRect();
+      dd.style.position="fixed";
+      dd.style.zIndex="400";
+      var ddH=dd.offsetHeight||120;
+      var spaceBelow=window.innerHeight-rect.bottom;
+      dd.style.left=(rect.right-190)+"px";
+      if(spaceBelow<ddH) dd.style.top=(rect.top-ddH)+"px";
+      else dd.style.top=(rect.bottom+4)+"px";
+      dd.querySelector("[data-view-book]").addEventListener("click",function(e2){e2.stopPropagation();openBookIssuedHistory(bid);dd.remove();});
+      if(dd.querySelector("[data-edit-book]")) dd.querySelector("[data-edit-book]").addEventListener("click",function(e2){e2.stopPropagation();openEditBook(bid);dd.remove();});
+      if(dd.querySelector("[data-del-book]")) dd.querySelector("[data-del-book]").addEventListener("click",async function(e2){
+        e2.stopPropagation();
+        if(!confirm('Remove "'+book.title+'" from the catalog?')){dd.remove();return;}
+        await deleteBook(bid);
+        BOOKS=BOOKS.filter(function(b){return b.id!==bid;}); saveToLocal();
+        dd.remove();
+        buildBookRows(document.getElementById("book-search").value.toLowerCase());
+        toast("Book removed.");
+      });
+    });
+  });
+  // update lang card counts
+  var countAll=BOOKS.length;
+  var countBen=BOOKS.filter(function(b){return (b.lang||"english")==="bengali";}).length;
+  var countEng=BOOKS.filter(function(b){return (b.lang||"english")==="english";}).length;
+  var countHin=BOOKS.filter(function(b){return (b.lang||"english")==="hindi";}).length;
+  var lcAll=document.getElementById("lc-all"); if(lcAll) lcAll.textContent=countAll+" book"+(countAll!==1?"s":"");
+  var lcBen=document.getElementById("lc-bengali"); if(lcBen) lcBen.textContent=countBen+" book"+(countBen!==1?"s":"");
+  var lcEng=document.getElementById("lc-english"); if(lcEng) lcEng.textContent=countEng+" book"+(countEng!==1?"s":"");
+  var lcHin=document.getElementById("lc-hindi"); if(lcHin) lcHin.textContent=countHin+" book"+(countHin!==1?"s":"");
+  tbody.querySelectorAll("[data-req]").forEach(function(btn){
+    btn.addEventListener("click",function(){
+      if(!session.member) return;
+      requestMemberPwd("req-"+btn.dataset.req+"|||"+btn.dataset.reqTitle);
+    });
+  });
+  tbody.querySelectorAll("[data-req-skip]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var m=session.member;
+      var rid="req-"+Date.now();
+      var req={id:rid,memberId:m.id,memberName:m.name,bookId:btn.dataset.req,bookTitle:btn.dataset.reqTitle,status:"pending",createdOn:td()};
+      btn.disabled=true; btn.textContent="Sending...";
+      try{
+        await saveRequest(req);
+        REQUESTS.push(req); saveToLocal();
+        toast("Request sent! Waiting for admin approval.");
+        buildBookRows(document.getElementById("book-search").value.toLowerCase());
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-send"></i> Request'; }
+    });
+  });
+}
+
+// ── Members ────────────────────────────────────────────────────────────────────
+document.getElementById("members-back").addEventListener("click",goHome);
+document.getElementById("members-logout").addEventListener("click",logout);
+document.getElementById("members-scan-btn").addEventListener("click",function(){openPwd("scan-member");});
+document.getElementById("members-pay-btn").addEventListener("click",function(){openPwd("payment");});
+// member-search uses inline oninput
+
+function buildMemberRows(f){
+  var tbody=document.getElementById("member-tbody"); tbody.innerHTML="";
+  function isBFite(m){
+    var addr=(m.address||"").toLowerCase();
+    return addr.indexOf("bf")!==-1||addr.indexOf("b.f.")!==-1;
+  }
+  var baseMembers=activeMemberType==="all"?MEMBERS
+    :activeMemberType==="bfite"?MEMBERS.filter(isBFite)
+    :MEMBERS.filter(function(m){return !isBFite(m);});
+  var list=f?baseMembers.filter(function(m){return m.name.toLowerCase().indexOf(f)!==-1||m.id.toLowerCase().indexOf(f)!==-1;}):baseMembers;
+  // update member type card counts
+  var cAll=MEMBERS.length;
+  var cBF=MEMBERS.filter(isBFite).length;
+  var cNon=MEMBERS.length-cBF;
+  var mcAll=document.getElementById("mc-all"); if(mcAll) mcAll.textContent=cAll+" member"+(cAll!==1?"s":"");
+  var mcBF=document.getElementById("mc-bfite"); if(mcBF) mcBF.textContent=cBF+" member"+(cBF!==1?"s":"");
+  var mcNon=document.getElementById("mc-nonbfite"); if(mcNon) mcNon.textContent=cNon+" member"+(cNon!==1?"s":"");
+  if(!list.length){tbody.innerHTML='<tr><td colspan="4" class="empty">'+(f?"No members match.":"No members yet.")+'</td></tr>';return;}
+  list.forEach(function(m){
+    var cnt=m.books.filter(function(b){return inYear(b.issuedOn);}).length;
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td><span class="idbadge">'+m.id+'</span></td><td><span class="mlink" data-mid="'+m.id+'">'+m.name+'</span></td><td style="color:var(--text-secondary)">'+(m.age||"—")+'</td><td style="color:var(--text-secondary);max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(m.address||"—")+'</td><td style="color:var(--text-secondary)"></td><td style="color:var(--text-secondary)">'+(m.mobile||'N/A')+'</td><td style="color:var(--text-secondary)">'+cnt+' issued</td><td><div class="dots-wrap"><button class="iBtn dd-btn" data-mid="'+m.id+'"><i class="ti ti-dots-vertical"></i></button></div></td>';
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".mlink").forEach(function(el){el.addEventListener("click",function(){openPwd("issue-"+el.dataset.mid);});});
+  tbody.querySelectorAll(".dd-btn").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      e.stopPropagation(); document.querySelectorAll(".dropdown").forEach(function(d){d.remove();});
+      if(openDropdown===btn.dataset.mid){openDropdown=null;return;}
+      openDropdown=btn.dataset.mid; var mid=btn.dataset.mid;
+      var dd=document.createElement("div"); dd.className="dropdown";
+      var dv2=document.createElement("div");dv2.className="ddi";dv2.dataset.view=mid;dv2.innerHTML='<i class="ti ti-book-2"></i> View issued books';dd.appendChild(dv2);
+      var de2=document.createElement("div");de2.className="ddi";de2.dataset.edit=mid;de2.innerHTML='<i class="ti ti-edit"></i> Edit details';dd.appendChild(de2);
+      if(!session.member){
+        var dl=document.createElement("div");dl.className="ddi";dl.dataset.librarian=mid;
+        var isLib=(MEMBERS.filter(function(x){return x.id===mid;})[0]||{}).isLibrarian;
+        dl.innerHTML='<i class="ti ti-shield-check"></i> '+(isLib?"Remove librarian":"Mark as librarian");
+        dd.appendChild(dl);
+        var dr2=document.createElement("div");dr2.className="ddi red";dr2.dataset.rem=mid;dr2.innerHTML='<i class="ti ti-trash"></i> Remove member';dd.appendChild(dr2);
+      }
+      document.body.appendChild(dd);
+      var rect=btn.getBoundingClientRect();
+      var ddH=dd.offsetHeight||120;
+      var spaceBelow=window.innerHeight-rect.bottom;
+      if(spaceBelow<ddH){
+        dd.style.top=(rect.top-ddH+window.scrollY)+"px";
+      } else {
+        dd.style.top=(rect.bottom+window.scrollY)+"px";
+      }
+      dd.style.left=(rect.right-170)+"px";
+      dd.querySelector("[data-view]").addEventListener("click",function(e){e.stopPropagation();openProfile(mid);dd.remove();openDropdown=null;});
+      dd.querySelector("[data-edit]").addEventListener("click",function(e){e.stopPropagation();openEditMember(mid);dd.remove();openDropdown=null;});
+      if(dd.querySelector("[data-librarian]")) dd.querySelector("[data-librarian]").addEventListener("click",async function(e){
+        e.stopPropagation();
+        var m2=MEMBERS.filter(function(x){return x.id===mid;})[0]; if(!m2) return;
+        m2.isLibrarian=!m2.isLibrarian;
+        try{ await saveMember(m2); saveToLocal(); toast(m2.name+(m2.isLibrarian?" is now a librarian.":" is no longer a librarian.")); buildMemberRows(""); }
+        catch(err){ alert("Error: "+err.message); }
+        dd.remove();
+      });
+      dd.querySelector("[data-rem]").addEventListener("click",async function(e){
+        e.stopPropagation();
+        await deleteMember(mid);
+        MEMBERS=MEMBERS.filter(function(m){return m.id!==mid;}); saveToLocal();
+        dd.remove();openDropdown=null;
+        buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+        toast("Member removed.");
+      });
+    });
+  });
+}
+document.addEventListener("click",function(){document.querySelectorAll(".dropdown").forEach(function(d){d.remove();});openDropdown=null;});
+
+// ── Dashboard ──────────────────────────────────────────────────────────────────
+document.getElementById("dash-back").addEventListener("click",goHome);
+document.getElementById("dash-logout").addEventListener("click",logout);
+
+function buildDash(){
+  var m=session.member; if(!m) return;
+  document.getElementById("dash-chip-av").textContent=ini(m.name);
+  document.getElementById("dash-chip-name").textContent=m.name;
+  var active=m.books.filter(function(b){return !b.ret;});
+  var history=m.books.filter(function(b){return b.ret&&inYear(b.issuedOn);});
+  var aRows=active.length===0?'<div class="empty"><i class="ti ti-book-off" style="font-size:22px;display:block;margin-bottom:6px"></i>No books currently issued</div>'
+    :active.map(function(b){
+      var due=new Date(b.issuedOn);due.setDate(due.getDate()+14);
+      return '<div class="irow"><div><div class="irow-title">'+b.title+'</div><div class="irow-meta"><span class="idbadge" style="font-size:10px">'+b.bid+'</span><i class="ti ti-calendar"></i>Issued '+fmt(b.issuedOn)+'</div></div>'
+        +'<div style="text-align:right"><span class="tag active-loan"><i class="ti ti-clock"></i> Active</span><div style="font-size:11px;color:var(--text-warning);margin-top:3px"><i class="ti ti-calendar-due"></i> Return by: '+fmt(due.toISOString().split("T")[0])+'</div></div></div>';
+    }).join("");
+  var hRows=history.length===0?'<div class="empty">No returned books this year</div>'
+    :history.map(function(b){return '<div class="irow"><div><div class="irow-title">'+b.title+'</div><div class="irow-meta"><span class="idbadge" style="font-size:10px">'+b.bid+'</span><i class="ti ti-calendar"></i>'+fmt(b.issuedOn)+'</div></div><span class="tag returned"><i class="ti ti-check"></i> Returned</span></div>';}).join("");
+  document.getElementById("dash-content").innerHTML=
+    '<div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem"><div class="av lg">'+ini(m.name)+'</div><div><div style="font-size:18px;font-weight:600">'+m.name+'</div></div></div>'
+    +'<div style="margin-bottom:1.5rem"><div style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px"><i class="ti ti-lock"></i> Your Member ID &amp; Password</div>'
+    +'<div style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;padding:0.6rem 1.2rem;border-radius:10px;box-shadow:0 4px 12px rgba(37,99,235,0.3)">'
+    +'<i class="ti ti-id-badge-2" style="font-size:20px;opacity:0.85"></i>'
+    +'<span style="font-family:var(--font-mono);font-size:20px;font-weight:700;letter-spacing:3px">'+m.id+'</span>'
+    +'</div><div style="font-size:11px;color:var(--text-muted);margin-top:5px">Use this as your password to log in</div></div>'
+    +'<div class="dash-grid"><div class="dcard" style="border-left:3px solid '+(m.paid?'var(--border-success)':'var(--border-danger)')+'"><h3><i class="ti ti-credit-card"></i> Subscription</h3>'
+    +(m.paid?'<span class="tag paid" style="font-size:12px;padding:5px 10px"><i class="ti ti-check"></i> Paid for this year</span><p style="font-size:12px;color:var(--text-muted);margin-top:0.5rem">Annual subscription of &#8377;500 received.</p>'
+            :'<span class="tag unpaid" style="font-size:12px;padding:5px 10px"><i class="ti ti-alert-circle"></i> Payment pending</span><p style="font-size:12px;color:var(--text-muted);margin-top:0.5rem">Please pay &#8377;500 by end of January.</p>')
+    +'</div><div class="dcard"><h3><i class="ti ti-books"></i> Books</h3><div style="display:flex;gap:1rem;text-align:center">'
+    +'<div style="flex:1"><div style="font-size:22px;font-weight:600;color:var(--text-warning)">'+active.length+'</div><div style="font-size:12px;color:var(--text-secondary)">Active</div></div>'
+    +'<div style="flex:1"><div style="font-size:22px;font-weight:600;color:var(--text-success)">'+history.length+'</div><div style="font-size:12px;color:var(--text-secondary)">Returned</div></div>'
+    +'<div style="flex:1"><div style="font-size:22px;font-weight:600;color:var(--text-accent)">'+m.books.length+'</div><div style="font-size:12px;color:var(--text-secondary)">Total</div></div>'
+    +'</div></div></div>'
+    +'<h3 style="margin-bottom:0.5rem"><i class="ti ti-clock"></i> Currently with you</h3><div class="tcard" style="margin-bottom:1.25rem">'+aRows+'</div>'
+    +'<h3 style="margin-bottom:0.5rem"><i class="ti ti-history"></i> Returned this year</h3><div class="tcard">'+hRows+'</div>'
+  +buildDashRequests(m);
+}
+
+// ── Admin Password ─────────────────────────────────────────────────────────────
+function openPwd(action){
+  pendingAction=action;
+  document.getElementById("pwd-inp").value="";
+  document.getElementById("pwd-err").style.display="none";
+  document.getElementById("ov-pwd").classList.add("open");
+  setTimeout(function(){document.getElementById("pwd-inp").focus();},100);
+}
+function closePwd(){document.getElementById("ov-pwd").classList.remove("open");pendingAction=null;}
+document.getElementById("pwd-close").addEventListener("click",closePwd);
+document.getElementById("pwd-cancel").addEventListener("click",closePwd);
+document.getElementById("pwd-inp").addEventListener("keydown",function(e){if(e.key==="Enter")submitPwd();});
+document.getElementById("pwd-submit").addEventListener("click",submitPwd);
+
+function submitPwd(){
+  var v=document.getElementById("pwd-inp").value;
+  var err=document.getElementById("pwd-err");
+  if(v!==ADMIN_PWD){err.textContent="Incorrect password.";err.style.display="block";return;}
+  var a=pendingAction||""; closePwd();
+  if(a==="payment")         openPayment();
+  else if(a==="scan-book")   openScan("book");
+  else if(a==="scan-member") openScan("member");
+  else if(a.indexOf("issue-")===0) openIssue(a.replace("issue-",""));
+}
+// ── Membership Applications ────────────────────────────────────────────────────
+// ── Scan ───────────────────────────────────────────────────────────────────────
+function buildRequests(){
+  var isAdmin=isAdminOrLibrarian();
+  var pending = REQUESTS.filter(function(r){return r.status==="pending"||(r.status==="approved"&&!r.collected);});
+  var history = REQUESTS.filter(function(r){return r.status!=="pending"&&!(r.status==="approved"&&!r.collected);}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+
+  var pTbody = document.getElementById("req-pending-tbody");
+  pTbody.innerHTML = "";
+  if(!pending.length){
+    pTbody.innerHTML='<tr><td colspan="4" class="empty"><i class="ti ti-check" style="font-size:20px;display:block;margin-bottom:6px"></i>No pending requests</td></tr>';
+  } else {
+    pending.forEach(function(r){
+      var tr=document.createElement("tr");
+      var collectInfo=r.status==="approved"&&!r.collected?(' — collect by '+fmt(r.collectBy)):'';
+      tr.innerHTML='<td><div style="font-weight:500">'+r.memberName+'</div><div style="font-size:11px;color:var(--text-muted)"><span class="idbadge" style="font-size:10px">'+r.memberId+'</span></div></td>'
+        +'<td style="font-weight:500">'+r.bookTitle+collectInfo+'</td>'
+        +'<td style="color:var(--text-secondary)">'+fmt(r.createdOn)+'</td>'
+        +'<td><div style="display:flex;gap:6px">'
+        +(r.status==="pending"
+          ?'<button class="btn suc sm" data-approve="'+r.id+'"><i class="ti ti-check"></i> Approve</button><button class="btn dan sm" data-reject="'+r.id+'"><i class="ti ti-x"></i> Reject</button>'
+          :'<div style="display:flex;gap:5px"><button class="btn pri sm" data-collect="'+r.id+'"><i class="ti ti-package"></i> Mark collected</button><button class="btn dan sm" data-notcollect="'+r.id+'"><i class="ti ti-x"></i> Not collected</button></div>')
+        +'</div></td>';
+      pTbody.appendChild(tr);
+    });
+  }
+
+  var hTbody = document.getElementById("req-history-tbody");
+  hTbody.innerHTML = "";
+  if(!history.length){
+    hTbody.innerHTML='<tr><td colspan="4" class="empty">No past requests</td></tr>';
+  } else {
+    history.forEach(function(r){
+      var tag=r.status==="collected"?'<span class="tag returned"><i class="ti ti-check"></i> Issued</span>':r.status==="not_collected"?'<span class="tag unpaid"><i class="ti ti-calendar-off"></i> Not collected</span>':r.status==="rejected"?'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>':r.status==="expired"?'<span class="tag unpaid"><i class="ti ti-clock-off"></i> Expired</span>':'<span class="tag returned"><i class="ti ti-check"></i> Approved</span>';
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+r.memberName+'</td><td>'+r.bookTitle+'</td><td style="color:var(--text-secondary)">'+fmt(r.createdOn)+'</td><td>'+tag+'</td>';
+      hTbody.appendChild(tr);
+    });
+  }
+
+  // approve/reject handlers
+  pTbody.querySelectorAll("[data-approve]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.approve;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Approving…";
+      if(isBlockedFor(req.bookId)){alert("This book is already blocked for someone else.");return;}
+      if(issuedTo(req.bookId)){alert("This book is already issued to someone else.");return;}
+      req.status="approved";
+      req.collectBy=nextTuesday();
+      req.collected=false;
+      try{
+        await updateRequest(req);
+        saveToLocal();
+        toast(req.bookTitle+" approved! Must be collected by "+fmt(req.collectBy)+".");
+        buildRequests();
+        buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Approve'; }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-notcollect]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.notcollect;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Updating…";
+      req.status="not_collected"; req.collected=false;
+      try{ await db.collection("requests").doc(req.id).set(req); saveToLocal(); toast("Marked as not collected."); buildRequests(); buildCover(); }
+      catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-x"></i> Not collected'; }
+    });
+  });
+  pTbody.querySelectorAll("[data-reject]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.reject;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Rejecting…";
+      req.status="rejected";
+      try{
+        await updateRequest(req);
+        saveToLocal();
+        toast("Request rejected.");
+        buildRequests();
+        buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-x"></i> Reject'; }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-collect]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var rid=btn.dataset.collect;
+      var req=REQUESTS.filter(function(r){return r.id===rid;})[0]; if(!req) return;
+      btn.disabled=true; btn.textContent="Saving…";
+      // now actually issue the book
+      var m=MEMBERS.filter(function(m){return m.id===req.memberId;})[0];
+      if(!m){alert("Member not found.");return;}
+      m.books.push({bid:req.bookId,title:req.bookTitle,issuedOn:td(),ret:false});
+      req.collected=true;
+      req.status="collected";
+      try{
+        await updateMember(m);
+        await updateRequest(req);
+        saveToLocal();
+        toast(req.bookTitle+" collected by "+req.memberName+"!");
+        buildRequests();
+        buildBookRows(document.getElementById("book-search").value.toLowerCase());
+        buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-package"></i> Mark collected'; }
+    });
+  });
+}
+
+function buildDashRequests(m){
+  var myReqs = REQUESTS.filter(function(r){return r.memberId===m.id;}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+  if(!myReqs.length) return '';
+  var rows = myReqs.map(function(r){
+    var tag = r.status==="pending"?'<span class="tag active-loan"><i class="ti ti-clock"></i> Pending</span>'
+             :r.status==="approved"&&!r.collected?'<span class="tag avail"><i class="ti ti-check"></i> Approved — collect by '+fmt(r.collectBy)+'</span>'
+             :r.status==="collected"?'<span class="tag returned"><i class="ti ti-check"></i> Issued</span>'
+             :r.status==="expired"?'<span class="tag unpaid"><i class="ti ti-clock-off"></i> Expired</span>'
+             :'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>';
+    return '<div class="irow"><div><div class="irow-title">'+r.bookTitle+'</div><div class="irow-meta"><i class="ti ti-calendar"></i>Requested '+fmt(r.createdOn)+'</div></div>'+tag+'</div>';
+  }).join("");
+  return '<h3 style="margin-top:1.25rem;margin-bottom:0.5rem"><i class="ti ti-bell"></i> My book requests</h3><div class="tcard">'+rows+'</div>';
+}
+
+function openBookIssuedHistory(bid){
+  var book=BOOKS.filter(function(b){return b.id===bid;})[0]; if(!book) return;
+  // gather all members who have issued this book
+  var issuedBy=[];
+  MEMBERS.forEach(function(m){
+    m.books.forEach(function(b){
+      if(b.bid===bid){
+        issuedBy.push({memberName:m.name,memberId:m.id,issuedOn:b.issuedOn,ret:b.ret});
+      }
+    });
+  });
+  issuedBy.sort(function(a,b){return new Date(b.issuedOn)-new Date(a.issuedOn);});
+
+  var rows=issuedBy.length===0
+    ?'<div class="empty"><i class="ti ti-user-off" style="font-size:24px;display:block;margin-bottom:6px"></i>No members have issued this book yet</div>'
+    :issuedBy.map(function(entry){
+      return '<div class="irow">'
+        +'<div>'
+        +'<div class="irow-title">'+entry.memberName+'</div>'
+        +'<div class="irow-meta"><span class="idbadge" style="font-size:10px">'+entry.memberId+'</span>'
+        +'<i class="ti ti-calendar"></i> Issued '+fmt(entry.issuedOn)+'</div>'
+        +'</div>'
+        +'<span class="tag '+(entry.ret?"returned":"active-loan")+'">'
+        +(entry.ret?'<i class="ti ti-check"></i> Returned':'<i class="ti ti-clock"></i> Active')
+        +'</span></div>';
+    }).join("");
+
+  var ov=document.createElement("div"); ov.className="ov open"; ov.style.zIndex="250";
+  ov.innerHTML='<div class="modal">'
+    +'<div class="modal-head">'
+    +'<div><div style="font-size:15px;font-weight:600"><i class="ti ti-books"></i> '+book.title+'</div>'
+    +'<div style="margin-top:3px"><span class="idbadge">'+book.id+'</span> &nbsp;<span style="font-size:12px;color:var(--text-secondary)">'+book.author+'</span></div></div>'
+    +'<button class="iBtn" id="bih-close"><i class="ti ti-x"></i></button>'
+    +'</div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem">'
+    +'<h3 style="margin-bottom:0"><i class="ti ti-users"></i> Members issued by</h3>'
+    +'<span style="font-size:12px;color:var(--text-secondary)">'+issuedBy.length+' record'+(issuedBy.length!==1?"s":"")+'</span>'
+    +'</div>'
+    +'<div class="tcard">'+rows+'</div>'
+    +'</div>';
+  document.body.appendChild(ov);
+  ov.querySelector("#bih-close").addEventListener("click",function(){ov.remove();});
+  ov.addEventListener("click",function(e){if(e.target===ov)ov.remove();});
+}
+
+var editingBookId = null;
+function openEditBook(bid){
+  var b=BOOKS.filter(function(b){return b.id===bid;})[0]; if(!b) return;
+  editingBookId=bid;
+  document.getElementById("edit-b-title").value=b.title||"";
+  document.getElementById("edit-b-author").value=b.author||"";
+  document.getElementById("edit-b-year").value=b.year||"";
+  document.getElementById("edit-b-id").value=b.id;
+  document.getElementById("edit-b-lang").value=b.lang||"english";
+  document.getElementById("edit-b-cover").value=b.cover||"";
+  document.getElementById("edit-b-desc").value=b.description||"";
+  document.getElementById("edit-b-publisher").value=b.publisher||"";
+  document.getElementById("edit-b-pages").value=b.pageCount||"";
+  document.getElementById("edit-b-genre").value=b.categories||"";
+  var thumb=document.getElementById("edit-b-cover-thumb");
+  if(b.cover){thumb.src=b.cover;thumb.style.display="block";}else{thumb.style.display="none";}
+  document.getElementById("edit-b-preview").style.display="none";
+  document.getElementById("edit-b-err").style.display="none";
+  document.getElementById("ov-edit-book").classList.add("open");
+}
+document.getElementById("edit-book-close").addEventListener("click",function(){document.getElementById("ov-edit-book").classList.remove("open");});
+document.getElementById("edit-b-fetch").addEventListener("click",async function(){
+  var title=document.getElementById("edit-b-title").value.trim();
+  var author=document.getElementById("edit-b-author").value.trim();
+  if(!title){alert("Please enter a title first.");return;}
+  this.disabled=true; this.innerHTML='<i class="ti ti-loader"></i> Fetching…';
+  var lang=document.getElementById("edit-b-lang").value;
+  var info=await fetchBookInfo(title,author,lang);
+  this.disabled=false; this.innerHTML='<i class="ti ti-refresh"></i> Fetch from Google Books';
+  if(!info||(!info.cover&&!info.description&&!info.publisher&&!info.pageCount)){toast("No info found.");return;}
+  if(info.cover){document.getElementById("edit-b-cover").value=info.cover;var th=document.getElementById("edit-b-cover-thumb");th.src=info.cover;th.style.display="block";}
+  if(info.description) document.getElementById("edit-b-desc").value=info.description.replace(/<[^>]*>/g,"");
+  if(info.publisher) document.getElementById("edit-b-publisher").value=info.publisher;
+  if(info.pageCount) document.getElementById("edit-b-pages").value=info.pageCount;
+  if(info.categories) document.getElementById("edit-b-genre").value=info.categories;
+  this.dataset.rating=info.rating||"";
+  var prev=document.getElementById("edit-b-preview"); prev.style.display="block";
+  if(info.cover) document.getElementById("edit-b-cover-preview").src=info.cover;
+  var dp=info.description?info.description.replace(/<[^>]*>/g,"").slice(0,120)+"…":"No description";
+  document.getElementById("edit-b-info-preview").innerHTML=(info.rating?"<b>Rating:</b> "+info.rating+"/5<br>":"")+"<b>Description:</b> "+dp;
+  toast("Info fetched! Click Save to apply.");
+});
+document.getElementById("edit-b-cancel").addEventListener("click",function(){document.getElementById("ov-edit-book").classList.remove("open");});
+document.getElementById("ov-edit-book").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+document.getElementById("edit-b-save").addEventListener("click",async function(){
+  var title=document.getElementById("edit-b-title").value.trim();
+  var author=document.getElementById("edit-b-author").value.trim();
+  var year=document.getElementById("edit-b-year").value.trim();
+  var lang=document.getElementById("edit-b-lang").value;
+  var err=document.getElementById("edit-b-err");
+  if(!title){err.textContent="Title is required.";err.style.display="block";return;}
+  var b=BOOKS.filter(function(b){return b.id===editingBookId;})[0]; if(!b) return;
+  this.disabled=true; this.textContent="Saving…";
+  b.title=title; b.author=author||"Unknown"; b.year=year?parseInt(year)||b.year:b.year; b.lang=lang;
+  b.cover=document.getElementById("edit-b-cover").value.trim()||b.cover||"";
+  b.description=document.getElementById("edit-b-desc").value.trim()||b.description||"";
+  b.publisher=document.getElementById("edit-b-publisher").value.trim()||b.publisher||"";
+  b.pageCount=document.getElementById("edit-b-pages").value.trim()||b.pageCount||"";
+  b.categories=document.getElementById("edit-b-genre").value.trim()||b.categories||"";
+  var fetchBtn=document.getElementById("edit-b-fetch");
+  if(fetchBtn&&fetchBtn.dataset.rating) b.rating=fetchBtn.dataset.rating;
+  try{
+    await saveBook(b); saveToLocal();
+    document.getElementById("ov-edit-book").classList.remove("open");
+    toast("Book updated!");
+    buildBookRows(document.getElementById("book-search").value.toLowerCase());
+  } catch(e2){ err.textContent="Error: "+e2.message; err.style.display="block"; }
+  this.disabled=false; this.innerHTML='<i class="ti ti-check"></i> Save changes';
+});
+
+var editingMemberId = null;
+function openEditMember(mid){
+  var m=MEMBERS.filter(function(m){return m.id===mid;})[0]; if(!m) return;
+  editingMemberId=mid;
+  document.getElementById("edit-m-name").value=m.name||"";
+  document.getElementById("edit-m-age").value=m.age||"";
+  document.getElementById("edit-m-id").value=m.id;
+  document.getElementById("edit-m-address").value=m.address||"";
+  if(document.getElementById("edit-m-mobile")) document.getElementById("edit-m-mobile").value=m.mobile||"";
+  document.getElementById("edit-m-err").style.display="none";
+  document.getElementById("ov-edit-member").classList.add("open");
+}
+document.getElementById("edit-member-close").addEventListener("click",function(){document.getElementById("ov-edit-member").classList.remove("open");});
+document.getElementById("edit-m-cancel").addEventListener("click",function(){document.getElementById("ov-edit-member").classList.remove("open");});
+document.getElementById("edit-m-save").addEventListener("click",async function(){
+  var name=document.getElementById("edit-m-name").value.trim();
+  var age=document.getElementById("edit-m-age").value.trim();
+  var address=document.getElementById("edit-m-address").value.trim();
+  var mobile=document.getElementById("edit-m-mobile")?document.getElementById("edit-m-mobile").value.trim():m.mobile||"";
+  var err=document.getElementById("edit-m-err");
+  if(!name){err.textContent="Name is required.";err.style.display="block";return;}
+  var m=MEMBERS.filter(function(m){return m.id===editingMemberId;})[0]; if(!m) return;
+  this.disabled=true; this.textContent="Saving…";
+  m.name=name; m.age=age?parseInt(age)||null:null; m.address=address; m.mobile=mobile||m.mobile||"N/A";
+  try{
+    await updateMember(m); saveToLocal();
+    document.getElementById("ov-edit-member").classList.remove("open");
+    toast("Member updated!");
+    buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+  } catch(e){ if(err){err.textContent="Error: "+e.message;err.style.display="block";}else{alert("Error: "+e.message);} }
+  this.disabled=false; this.innerHTML='<i class="ti ti-check"></i> Save changes';
+});
+document.getElementById("ov-edit-member").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+
+// ── Membership Applications ────────────────────────────────────────────────────
+function buildMemApps(){
+  var pending=MEM_APPS.filter(function(a){return a.status==="pending";});
+  var history=MEM_APPS.filter(function(a){return a.status!=="pending";}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+
+  var pTbody=document.getElementById("memapp-pending-tbody"); pTbody.innerHTML="";
+  if(!pending.length){
+    pTbody.innerHTML='<tr><td colspan="6" class="empty"><i class="ti ti-check" style="font-size:20px;display:block;margin-bottom:6px"></i>No pending applications</td></tr>';
+  } else {
+    pending.forEach(function(a){
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+a.name+'</td>'
+        +'<td>'+a.age+'</td>'
+        +'<td>'+(a.livesInBF==="yes"?'<span class="tag avail">Yes</span>':'<span class="tag unpaid">No</span>')+'</td>'
+        +'<td style="color:var(--text-secondary);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.address+'</td>'
+        +'<td style="color:var(--text-secondary)">'+fmt(a.createdOn)+'</td>'
+        +'<td><div style="display:flex;gap:6px">'
+        +'<button class="btn suc sm" data-approve-app="'+a.id+'"><i class="ti ti-check"></i> Approve</button>'
+        +'<button class="btn dan sm" data-reject-app="'+a.id+'"><i class="ti ti-x"></i> Reject</button>'
+        +'</div></td>';
+      pTbody.appendChild(tr);
+    });
+  }
+
+  var hTbody=document.getElementById("memapp-history-tbody"); hTbody.innerHTML="";
+  if(!history.length){
+    hTbody.innerHTML='<tr><td colspan="5" class="empty">No past applications</td></tr>';
+  } else {
+    history.forEach(function(a){
+      var tag=a.status==="approved"?'<span class="tag returned"><i class="ti ti-check"></i> Approved</span>':'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>';
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+a.name+'</td><td>'+a.age+'</td><td style="color:var(--text-secondary)">'+a.address+'</td><td style="color:var(--text-secondary)">'+fmt(a.createdOn)+'</td><td>'+tag+'</td>';
+      hTbody.appendChild(tr);
+    });
+  }
+
+  pTbody.querySelectorAll("[data-approve-app]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var aid=btn.dataset.approveApp;
+      var app=MEM_APPS.filter(function(a){return a.id===aid;})[0]; if(!app) return;
+      btn.disabled=true; btn.textContent="Adding member…";
+      var newM={id:nextMemberId(),name:app.name,age:app.age?parseInt(app.age)||null:null,address:app.address||"",paid:false,paidYear:null,books:[]};
+      app.status="approved"; app.memberId=newM.id;
+      try{
+        await saveMember(newM);
+        await updateMemberApp(app);
+        MEMBERS.push(newM);
+        MEM_APPS=MEM_APPS.map(function(a){return a.id===aid?app:a;});
+        saveToLocal();
+        toast(app.name+" approved! Member ID: "+newM.id);
+        buildMemApps(); buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Approve'; alert("Error: "+e.message); }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-reject-app]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var aid=btn.dataset.rejectApp;
+      var app=MEM_APPS.filter(function(a){return a.id===aid;})[0]; if(!app) return;
+      btn.disabled=true; btn.textContent="Rejecting…";
+      app.status="rejected";
+      try{
+        await updateMemberApp(app);
+        MEM_APPS=MEM_APPS.map(function(a){return a.id===aid?app:a;});
+        saveToLocal();
+        toast("Application rejected.");
+        buildMemApps(); buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-x"></i> Reject'; }
+    });
+  });
+}
+
+// ── Membership Applications ────────────────────────────────────────────────────
+function buildMemApps(){
+  var pending=MEM_APPS.filter(function(a){return a.status==="pending";});
+  var history=MEM_APPS.filter(function(a){return a.status!=="pending";}).sort(function(a,b){return new Date(b.createdOn)-new Date(a.createdOn);});
+
+  var pTbody=document.getElementById("memapp-pending-tbody"); pTbody.innerHTML="";
+  if(!pending.length){
+    pTbody.innerHTML='<tr><td colspan="6" class="empty"><i class="ti ti-check" style="font-size:20px;display:block;margin-bottom:6px"></i>No pending applications</td></tr>';
+  } else {
+    pending.forEach(function(a){
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+a.name+'</td>'
+        +'<td>'+a.age+'</td>'
+        +'<td>'+(a.livesInBF==="yes"?'<span class="tag avail">Yes</span>':'<span class="tag unpaid">No</span>')+'</td>'
+        +'<td style="color:var(--text-secondary);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+a.address+'</td>'
+        +'<td style="color:var(--text-secondary)">'+fmt(a.createdOn)+'</td>'
+        +'<td><div style="display:flex;gap:6px">'
+        +'<button class="btn suc sm" data-approve-app="'+a.id+'"><i class="ti ti-check"></i> Approve</button>'
+        +'<button class="btn dan sm" data-reject-app="'+a.id+'"><i class="ti ti-x"></i> Reject</button>'
+        +'</div></td>';
+      pTbody.appendChild(tr);
+    });
+  }
+
+  var hTbody=document.getElementById("memapp-history-tbody"); hTbody.innerHTML="";
+  if(!history.length){
+    hTbody.innerHTML='<tr><td colspan="5" class="empty">No past applications</td></tr>';
+  } else {
+    history.forEach(function(a){
+      var tag=a.status==="approved"?'<span class="tag returned"><i class="ti ti-check"></i> Approved</span>':'<span class="tag unpaid"><i class="ti ti-x"></i> Rejected</span>';
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td style="font-weight:500">'+a.name+'</td><td>'+a.age+'</td><td style="color:var(--text-secondary)">'+a.address+'</td><td style="color:var(--text-secondary)">'+fmt(a.createdOn)+'</td><td>'+tag+'</td>';
+      hTbody.appendChild(tr);
+    });
+  }
+
+  pTbody.querySelectorAll("[data-approve-app]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var aid=btn.dataset.approveApp;
+      var app=MEM_APPS.filter(function(a){return a.id===aid;})[0]; if(!app) return;
+      btn.disabled=true; btn.textContent="Adding member…";
+      var newM={id:nextMemberId(),name:app.name,age:app.age?parseInt(app.age)||null:null,address:app.address||"",paid:false,paidYear:null,books:[]};
+      app.status="approved"; app.memberId=newM.id;
+      try{
+        await saveMember(newM);
+        await updateMemberApp(app);
+        MEMBERS.push(newM);
+        MEM_APPS=MEM_APPS.map(function(a){return a.id===aid?app:a;});
+        saveToLocal();
+        toast(app.name+" approved! Member ID: "+newM.id);
+        buildMemApps(); buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-check"></i> Approve'; alert("Error: "+e.message); }
+    });
+  });
+
+  pTbody.querySelectorAll("[data-reject-app]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var aid=btn.dataset.rejectApp;
+      var app=MEM_APPS.filter(function(a){return a.id===aid;})[0]; if(!app) return;
+      btn.disabled=true; btn.textContent="Rejecting…";
+      app.status="rejected";
+      try{
+        await updateMemberApp(app);
+        MEM_APPS=MEM_APPS.map(function(a){return a.id===aid?app:a;});
+        saveToLocal();
+        toast("Application rejected.");
+        buildMemApps(); buildCover();
+      } catch(e){ btn.disabled=false; btn.innerHTML='<i class="ti ti-x"></i> Reject'; }
+    });
+  });
+}
+// ── Member Profile ─────────────────────────────────────────────────────────────
+function openProfile(mid){
+  var m=MEMBERS.filter(function(m){return m.id===mid;})[0];if(!m)return;
+  var recent=m.books.filter(function(b){return inYear(b.issuedOn);}).sort(function(a,b){return new Date(b.issuedOn)-new Date(a.issuedOn);});
+  var older=m.books.filter(function(b){return !inYear(b.issuedOn);}).length;
+  var rows=recent.length===0?'<div class="empty"><i class="ti ti-book-off" style="font-size:24px;display:block;margin-bottom:6px"></i>No books in last year</div>'
+    :recent.map(function(b){return '<div class="irow"><div><div class="irow-title">'+b.title+'</div><div class="irow-meta"><span class="idbadge" style="font-size:10px">'+b.bid+'</span><i class="ti ti-calendar"></i>'+fmt(b.issuedOn)+'</div></div><span class="tag '+(b.ret?"returned":"active-loan")+'">'+(b.ret?'<i class="ti ti-check"></i> Returned':'<i class="ti ti-clock"></i> Active')+'</span></div>';}).join("");
+  var ov=document.createElement("div");ov.className="ov open";ov.style.zIndex="250";
+  ov.innerHTML='<div class="modal"><div class="modal-head"><div style="display:flex;align-items:center;gap:10px"><div class="av lg">'+ini(m.name)+'</div><div><div style="font-size:15px;font-weight:600">'+m.name+'</div><div style="margin-top:3px"><span class="idbadge">'+m.id+'</span>'+(m.mobile&&m.mobile!=='N/A'?' &nbsp;<i class="ti ti-phone"></i> '+m.mobile:'')+'</div></div></div><button class="iBtn" id="prof-close"><i class="ti ti-x"></i></button></div><h3 style="margin-bottom:0.5rem"><i class="ti ti-book-2"></i> Issued books — last 12 months <span style="font-size:12px;font-weight:400;color:var(--text-secondary)">'+recent.length+' book'+(recent.length!==1?"s":"")+'</span></h3><div class="tcard">'+rows+'</div>'+(older>0?'<p style="font-size:12px;color:var(--text-muted);margin-top:0.75rem;text-align:center">+'+older+' older issues not shown</p>':'')+'</div>';
+  document.body.appendChild(ov);
+  ov.querySelector("#prof-close").addEventListener("click",function(){ov.remove();});
+  ov.addEventListener("click",function(e){if(e.target===ov)ov.remove();});
+}
+
+
+function openScan(type){
+  activeScanType=type;
+  var titles={book:"Scan to add books",member:"Scan to add members","payment-update":"Scan to mark members as paid"};
+  var hints={book:"Paste, drop, or upload a screenshot of a book list.",member:"Paste, drop, or upload a screenshot of a member list.","payment-update":"Upload a screenshot with member names to mark as paid."};
+  document.getElementById("scan-title").innerHTML='<i class="ti ti-scan"></i> '+(titles[type]||"Scan");
+  document.getElementById("scan-hint").textContent=hints[type]||"";
+  document.getElementById("scan-book-fields").style.display=type==="book"?"":"none";
+  document.getElementById("scan-member-fields").style.display=type==="member"?"":"none";
+  document.getElementById("scan-payupdate-fields").style.display=type==="payment-update"?"":"none";
+  ["scan-m-title","scan-m-author","scan-m-year","scan-m-name","scan-m-payname"].forEach(function(id){var el=document.getElementById(id);if(el)el.value="";});
+  document.getElementById("scan-results").innerHTML="";
+  scanBookLang=activeLang==="all"?"english":activeLang||"english";
+  showScanState("idle");
+  document.getElementById("ov-scan").classList.add("open");
+}
+function showScanState(s){
+  document.getElementById("scan-idle").style.display=s==="idle"?"":"none";
+  document.getElementById("scan-scanning").style.display=s==="scanning"?"":"none";
+  document.getElementById("scan-done").style.display=s==="done"?"":"none";
+}
+document.getElementById("scan-close").addEventListener("click",function(){document.getElementById("ov-scan").classList.remove("open");});
+document.getElementById("scan-again").addEventListener("click",function(){showScanState("idle");});
+
+var scanZone=document.getElementById("scan-zone");
+scanZone.addEventListener("dragover",function(e){e.preventDefault();scanZone.classList.add("drag");});
+scanZone.addEventListener("dragleave",function(){scanZone.classList.remove("drag");});
+scanZone.addEventListener("drop",function(e){e.preventDefault();scanZone.classList.remove("drag");if(e.dataTransfer.files[0])processFile(e.dataTransfer.files[0]);});
+document.getElementById("scan-file").addEventListener("change",function(e){if(e.target.files[0])processFile(e.target.files[0]);});
+
+document.addEventListener("paste",function(e){
+  if(!document.getElementById("ov-scan").classList.contains("open"))return;
+  var items=e.clipboardData?e.clipboardData.items:[];
+  for(var i=0;i<items.length;i++){if(items[i].type.startsWith("image/")){scanZone.classList.add("drag");setTimeout(function(){scanZone.classList.remove("drag");},300);processFile(items[i].getAsFile());break;}}
+});
+
+document.getElementById("scan-manual-add").addEventListener("click",async function(){
+  var lines=[];
+  if(activeScanType==="book"){
+    var t=document.getElementById("scan-m-title").value.trim();
+    var a=document.getElementById("scan-m-author").value.trim();
+    var y=document.getElementById("scan-m-year").value.trim();
+    if(!t){alert("Please enter a book title.");return;}
+    var lang=document.getElementById("scan-m-lang").value||"english";
+    scanBookLang=lang;
+    lines.push(t+"|"+(a||"Unknown")+"|"+(y||String(thisYear)));
+  } else if(activeScanType==="member"){
+    var n=document.getElementById("scan-m-name").value.trim();
+    if(!n){alert("Please enter a member name.");return;}
+    lines.push(n);
+  } else if(activeScanType==="payment-update"){
+    var pn=document.getElementById("scan-m-payname").value.trim();
+    if(!pn){alert("Please enter a member name.");return;}
+    lines.push(pn);
+  }
+  if(!lines.length)return;
+  // For manual single-entry, add directly without going to confirm screen
+  await processScanEntries(lines);
+  document.getElementById("ov-scan").classList.remove("open");
+  toast("Done!");
+});
+
+document.getElementById("scan-confirm").addEventListener("click",async function(){
+  var type = activeScanType;
+  var sel = [];
+  if(type==="book"){
+    // Read title+author pairs
+    var rows=document.querySelectorAll("#scan-results .scan-title-inp");
+    rows.forEach(function(tinp){
+      var title=tinp.value.trim();
+      var author=tinp.parentElement.querySelector(".scan-author-inp").value.trim();
+      if(title) sel.push(title+"|"+(author||"Unknown")+"|"+thisYear);
+    });
+  } else {
+    var checked=document.querySelectorAll("#scan-results input[type=checkbox]:checked");
+    checked.forEach(function(cb){sel.push(cb.dataset.val);});
+  }
+  if(!sel.length)return;
+  this.disabled=true; this.textContent="Saving…";
+  try {
+    await processScanEntries(sel, type);
+    document.getElementById("ov-scan").classList.remove("open");
+    toast("Saved successfully!");
+  } catch(e){
+    alert("Save failed: "+e.message);
+  } finally {
+    this.disabled=false;
+    this.innerHTML='<i class="ti ti-check"></i> Add selected';
+  }
+});
+
+async function processScanEntries(entries, type){
+  if(!type) type = activeScanType;
+  if(type==="book"){
+    for(var i=0;i<entries.length;i++){
+      var entry=entries[i];
+      var bookObj;
+      if(entry.indexOf("|")!==-1){
+        var parts=entry.split("|");
+        var t=parts[0]?parts[0].trim():"Unknown";
+        var a=parts[1]?parts[1].trim():"Unknown";
+        var y=parts[2]?parseInt(parts[2].trim())||thisYear:thisYear;
+        bookObj={id:nextBookId(a),title:t,author:a,year:y,lang:scanBookLang||"english"};
+      } else {
+        var p=entry.split(/\s+by\s+/i);
+        var a2=p[1]?p[1].trim():"Unknown";
+        bookObj={id:nextBookId(a2),title:p[0].trim(),author:a2,year:thisYear,lang:scanBookLang||"english"};
+      }
+      toast("Fetching info for: "+bookObj.title);
+      var extra=await fetchBookInfo(bookObj.title,bookObj.author,bookObj.lang);
+      if(extra.cover) bookObj.cover=extra.cover;
+      if(extra.description) bookObj.description=extra.description;
+      if(extra.publisher) bookObj.publisher=extra.publisher;
+      if(extra.pageCount) bookObj.pageCount=extra.pageCount;
+      if(extra.categories) bookObj.categories=extra.categories;
+      if(extra.rating) bookObj.rating=extra.rating;
+      await saveBook(bookObj);
+      BOOKS.push(bookObj);
+      if(!bookObj.cover) coverPromptQueue.push({id:bookObj.id,title:bookObj.title});
+    }
+    saveToLocal();
+    buildBookRows(document.getElementById("book-search").value.toLowerCase());
+    if(typeof coverPromptQueue!=="undefined"&&coverPromptQueue.length) setTimeout(processNextCoverPrompt,500);
+  } else if(type==="member"){
+    for(var i=0;i<entries.length;i++){
+      var newM={id:nextMemberId(),name:entries[i].trim(),age:null,address:"",paid:false,paidYear:null,books:[]};
+      await saveMember(newM);
+      MEMBERS.push(newM);
+    }
+    saveToLocal();
+    buildMemberRows(document.getElementById("member-search").value.toLowerCase());
+  } else if(type==="payment-update"){
+    for(var i=0;i<entries.length;i++){
+      var cn=entries[i].trim().toLowerCase();
+      for(var j=0;j<MEMBERS.length;j++){
+        if(MEMBERS[j].name.toLowerCase().indexOf(cn)!==-1||cn.indexOf(MEMBERS[j].name.toLowerCase().split(" ")[0])!==-1){
+          MEMBERS[j].paid=true; MEMBERS[j].paidYear=thisYear;
+          await updateMember(MEMBERS[j]);
+        }
+      }
+    }
+  }
+}
+
+function buildScanResults(lines){
+  var el=document.getElementById("scan-results");el.innerHTML="";
+  if(activeScanType!=="book"){
+    // non-book: original checkbox list
+    lines.forEach(function(line){
+      var label=document.createElement("label");label.className="ex-item";
+      label.innerHTML='<input type="checkbox" data-val="'+line.replace(/"/g,"&quot;")+'" checked> <span>'+line+'</span>';
+      el.appendChild(label);
+    });
+    return;
+  }
+  // For Bengali/Hindi: add transliterate button
+  if(scanBookLang==="bengali"||scanBookLang==="hindi"){
+    var tBtn=document.createElement("button");
+    tBtn.className="btn"; tBtn.style.marginBottom="8px"; tBtn.style.fontSize="12px";
+    tBtn.innerHTML='<i class="ti ti-language"></i> Transliterate to English';
+    tBtn.addEventListener("click",async function(){
+      tBtn.disabled=true; tBtn.textContent="Transliterating…";
+      var titleInps=el.querySelectorAll(".scan-title-inp");
+      var authorInps=el.querySelectorAll(".scan-author-inp");
+      for(var i=0;i<titleInps.length;i++){
+        if(titleInps[i].value){
+          var tr1=await transliterateToRoman(titleInps[i].value);
+          console.log("Title transliterated:",titleInps[i].value,"->",tr1);
+          if(tr1&&tr1.trim()&&tr1!==titleInps[i].value) titleInps[i].value=tr1;
+        }
+        if(authorInps[i]&&authorInps[i].value){
+          var tr2=await transliterateToRoman(authorInps[i].value);
+          console.log("Author transliterated:",authorInps[i].value,"->",tr2);
+          if(tr2&&tr2.trim()&&tr2!==authorInps[i].value) authorInps[i].value=tr2;
+        }
+      }
+      tBtn.disabled=false; tBtn.innerHTML='<i class="ti ti-check"></i> Done';
+    });
+    el.appendChild(tBtn);
+  }
+  // For books: show title+author fields per line
+  lines.forEach(function(line,i){
+    var parts=line.split("|");
+    var title=parts[0]?parts[0].trim():"";
+    var author=parts[1]?parts[1].trim():"";
+    var row=document.createElement("div");
+    row.style.cssText="display:grid;grid-template-columns:1fr 1fr auto;gap:6px;align-items:center;margin-bottom:6px";
+    var t=document.createElement('input');t.type='text';t.className='scan-title-inp';t.placeholder='Title';t.value=title;t.style.cssText='padding:0.4rem 0.6rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:12px;font-family:inherit;outline:none';
+    var au=document.createElement('input');au.type='text';au.className='scan-author-inp';au.placeholder='Author';au.value=author;au.style.cssText='padding:0.4rem 0.6rem;border:1px solid #d1d5db;border-radius:var(--radius);font-size:12px;font-family:inherit;outline:none';
+    var xb=document.createElement('button');xb.className='iBtn';xb.innerHTML='<i class="ti ti-x"></i>';xb.style.color='var(--text-danger)';(function(r){xb.addEventListener('click',function(){r.remove();});})(row);
+    row.appendChild(t);row.appendChild(au);row.appendChild(xb);
+    el.appendChild(row);
+  });
+}
+
+function processFile(file){
+  var r=new FileReader();
+  r.onload=function(e){
+    document.getElementById("scan-preview").src=e.target.result;
+    document.getElementById("scan-preview2").src=e.target.result;
+    document.getElementById("scan-preview2").style.display="block";
+    showScanState("scanning");
+    if(typeof Tesseract!=="undefined"){
+      Tesseract.recognize(e.target.result,
+        scanBookLang==="bengali"?"ben+eng":scanBookLang==="hindi"?"hin+eng":"eng",
+        {logger:function(){}})
+        .then(function(res){
+          var lines=[];res.data.text.split("\n").forEach(function(l){l=l.trim();if(l.length>3&&!/^\d+$/.test(l)&&lines.indexOf(l)===-1)lines.push(l);});
+          buildScanResults(lines.slice(0,30));showScanState("done");
+        }).catch(function(){buildScanResults([]);showScanState("done");});
+    } else {setTimeout(function(){buildScanResults(["Sample entry (OCR unavailable)"]);showScanState("done");},1200);}
+  };
+  r.readAsDataURL(file);
+}
+
+// ── Payment ────────────────────────────────────────────────────────────────────
+function openPayment(){document.getElementById("pg-payment").style.display="block";buildPayment();}
+document.getElementById("pay-close").addEventListener("click",function(){document.getElementById("pg-payment").style.display="none";});
+document.getElementById("pay-scan").addEventListener("click",function(){openScan("payment-update");});
+
+function buildPayment(){
+  var paid=MEMBERS.filter(function(m){return m.paid;});
+  var unpaid=MEMBERS.filter(function(m){return !m.paid;});
+  document.getElementById("pay-stats").innerHTML='<div class="scard"><div class="n" style="color:var(--text-success)">'+paid.length+'</div><div class="l">Paid</div></div><div class="scard"><div class="n" style="color:var(--text-danger)">'+unpaid.length+'</div><div class="l">Pending</div></div>';
+  var upEl=document.getElementById("pay-unpaid");upEl.innerHTML="";
+  if(!unpaid.length){upEl.innerHTML='<tr><td colspan="3" class="empty">All members have paid!</td></tr>';}
+  else unpaid.forEach(function(m){var tr=document.createElement("tr");tr.innerHTML='<td><span class="idbadge">'+m.id+'</span></td><td style="font-weight:500">'+m.name+'</td><td><button class="btn suc sm" data-mk="'+m.id+'"><i class="ti ti-check"></i> Mark paid</button></td>';upEl.appendChild(tr);});
+  var pEl=document.getElementById("pay-paid");pEl.innerHTML="";
+  if(!paid.length){pEl.innerHTML='<tr><td colspan="3" class="empty">No paid members yet.</td></tr>';}
+  else paid.forEach(function(m){var tr=document.createElement("tr");tr.innerHTML='<td><span class="idbadge">'+m.id+'</span></td><td style="font-weight:500">'+m.name+'</td><td><span class="tag paid"><i class="ti ti-check"></i> Paid</span></td>';pEl.appendChild(tr);});
+  document.getElementById("pay-unpaid").querySelectorAll("[data-mk]").forEach(function(btn){
+    btn.addEventListener("click",async function(){
+      var m=MEMBERS.filter(function(m){return m.id===btn.dataset.mk;})[0];
+      if(m){m.paid=true;m.paidYear=thisYear;await updateMember(m);saveToLocal();}
+      buildPayment();toast(m.name+" marked as paid.");
+    });
+  });
+}
+
+// close overlays on bg click
+document.getElementById("ov-pwd").addEventListener("click",function(e){if(e.target===this)closePwd();});
+document.getElementById("ov-issue").addEventListener("click",function(e){if(e.target===this){this.classList.remove("open");activeIssueId=null;}});
+document.getElementById("ov-scan").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+document.getElementById("rules-back").addEventListener("click",goHome);
+document.getElementById("req-back").addEventListener("click",goHome);
+document.getElementById("req-logout").addEventListener("click",logout);
+document.getElementById("chat-back").addEventListener("click",goHome);
+document.getElementById("chat-logout").addEventListener("click",logout);
+document.querySelectorAll("[id$='-logout']").forEach(function(el){el.addEventListener("click",logout);});
+
+// Show login immediately, load Firebase in background
+// ── Reminders ─────────────────────────────────────────────────────────────────
+function checkReminders(){
+  if(!session.member) return;
+  var tomorrow=new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  var tStr=tomorrow.toISOString().split("T")[0];
+  var reminders=[];
+  REQUESTS.forEach(function(r){if(r.memberId===session.member.id&&r.status==="approved"&&!r.collected&&r.collectBy===tStr)reminders.push('📚 Collect "'+r.bookTitle+'" tomorrow (Tuesday 7–8 PM)!');});
+  session.member.books.forEach(function(b){if(!b.ret){var due=new Date(b.issuedOn);due.setDate(due.getDate()+14);if(due.toISOString().split("T")[0]===tStr)reminders.push('⏰ "'+b.title+'" is due for return tomorrow!');}});
+  if(reminders.length) setTimeout(function(){reminders.forEach(showReminderToast);},1500);
+}
+function showReminderToast(msg){
+  var t=document.createElement("div");
+  t.style.cssText="position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#7c3aed;color:#fff;padding:0.75rem 1.25rem;border-radius:var(--radius);font-size:13px;z-index:500;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:360px;text-align:center;line-height:1.5";
+  t.textContent=msg; document.body.appendChild(t); setTimeout(function(){t.remove();},6000);
+}
+
+// ── Member password gate ───────────────────────────────────────────────────────
+var memberPwdAction=null;
+function requestMemberPwd(action){memberPwdAction=action;document.getElementById("mem-pwd-inp").value="";document.getElementById("mem-pwd-err").style.display="none";document.getElementById("ov-mem-pwd").classList.add("open");setTimeout(function(){document.getElementById("mem-pwd-inp").focus();},100);}
+function closeMemberPwd(){document.getElementById("ov-mem-pwd").classList.remove("open");memberPwdAction=null;}
+document.getElementById("mem-pwd-close").addEventListener("click",closeMemberPwd);
+document.getElementById("mem-pwd-cancel").addEventListener("click",closeMemberPwd);
+document.getElementById("ov-mem-pwd").addEventListener("click",function(e){if(e.target===this)closeMemberPwd();});
+document.getElementById("mem-pwd-inp").addEventListener("keydown",function(e){if(e.key==="Enter")checkMemberPwd();});
+document.getElementById("mem-pwd-submit").addEventListener("click",checkMemberPwd);
+function checkMemberPwd(){
+  var v=document.getElementById("mem-pwd-inp").value.trim().toUpperCase();
+  var err=document.getElementById("mem-pwd-err");
+  if(!session.member){closeMemberPwd();return;}
+  if(v!==session.member.id.toUpperCase()){err.textContent="Incorrect Member ID.";err.style.display="block";return;}
+  var action=memberPwdAction; closeMemberPwd();
+  if(action==="dashboard"){buildDash();showPage("pg-dashboard");}
+  else if(action&&action.indexOf("req-")===0){
+    var parts=action.replace("req-","").split("|||");
+    var bookId=parts[0]; var bookTitle=parts[1]||"";
+    var m2=session.member; var rid="req-"+Date.now();
+    var req={id:rid,memberId:m2.id,memberName:m2.name,bookId:bookId,bookTitle:bookTitle,status:"pending",createdOn:td()};
+    (async function(){try{await saveRequest(req);REQUESTS.push(req);saveToLocal();toast("Request sent! Waiting for admin approval.");buildBookRows(document.getElementById("book-search").value.toLowerCase());}catch(e){alert("Error: "+e.message);}})();
+  }
+}
+
+// ── Transliteration + Fetch ────────────────────────────────────────────────────
+async function transliterateToBengali(text,langCode){
+  try{var itc=langCode||"bn-t-i0-und";var url="https://inputtools.google.com/request?text="+encodeURIComponent(text)+"&itc="+itc+"&num=1&cp=0&cs=1&ie=utf-8&oe=utf-8";var res=await fetch(url);var data=await res.json();if(data&&data[1]&&data[1][0]&&data[1][0][1]&&data[1][0][1][0])return data[1][0][1][0];}catch(e){}return null;
+}
+async function transliterateToRoman(text){
+  var cleaned=text.replace(/^[0-9]+ /,"").trim();
+  // Bengali Unicode to Roman transliteration map (Hunterian system)
+  var map={
+    'অ':'a','আ':'a','ই':'i','ঈ':'i','উ':'u','ঊ':'u',
+    'ঋ':'ri','এ':'e','ঐ':'oi','ও':'o','ঔ':'ou',
+    'ক':'k','খ':'kh','গ':'g','ঘ':'gh','ঙ':'ng',
+    'চ':'ch','ছ':'chh','জ':'j','ঝ':'jh','ঞ':'n',
+    'ট':'t','ঠ':'th','ড':'d','ঢ':'dh','ণ':'n',
+    'ত':'t','থ':'th','দ':'d','ধ':'dh','ন':'n',
+    'প':'p','ফ':'ph','ব':'b','ভ':'bh','ম':'m',
+    'য':'y','র':'r','ল':'l','শ':'sh','ষ':'sh',
+    'স':'s','হ':'h','ড়':'r','ঢ়':'rh','য়':'y',
+    'ৠ':'ri','ৡ':'li',
+    // Vowel signs (matras)
+    'া':'a','ি':'i','ী':'i','ু':'u','ূ':'u',
+    'ৃ':'ri','ে':'e','ৈ':'oi','ো':'o','ৌ':'ou',
+    '্':'',  // hasanta (virama) - removes inherent vowel
+    '়':'',  // nukta
+    'ৎ':'t', // khanda ta
+    // Numerals
+    '০':'0','১':'1','২':'2','৩':'3','৪':'4',
+    '৫':'5','৬':'6','৭':'7','৮':'8','৯':'9',
+    // Anusvara, Visarga
+    'ং':'n','ঃ':'h',
+    // Conjunct helper
+    '্য':'y','্র':'r',
+  };
+  var result="";
+  var i=0;
+  while(i<cleaned.length){
+    var ch=cleaned[i];
+    var code=ch.charCodeAt(0);
+    // Keep ASCII as-is
+    if(code<=127){result+=ch;i++;continue;}
+    // Check two-char combo first
+    if(i+1<cleaned.length&&map[ch+cleaned[i+1]]!==undefined){
+      result+=map[ch+cleaned[i+1]];i+=2;continue;
+    }
+    // Single char
+    if(map[ch]!==undefined){
+      // After hasanta, don't add inherent 'a'
+      result+=map[ch];
+    } else {
+      // Unknown char - skip
+    }
+    i++;
+  }
+  // Add inherent 'a' after consonants not followed by matra/hasanta
+  // (simplified: already handled above)
+  result=result.replace(/ +/g," ").trim();
+  return result||cleaned;
+}
+async function fetchBookInfo(title,author,lang){
+  var authorStr=author&&author!=="Unknown"?author:"";
+  var mainQ=title+(authorStr?" "+authorStr:"");
+  var cleanQ=(title+" "+authorStr).replace(/[-:]/g," ").replace(/  +/g," ").trim();
+
+  // Try Google Books once only
+  try{
+    var gRes=await fetch("https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent(mainQ)+"&maxResults=1&key=AIzaSyBoUncCrsulLahMbo8k_iND4Nvwe5pKyTA");
+    if(gRes.status===429) throw new Error("rate limited");
+    var gData=await gRes.json();
+    if(gData.items&&gData.items.length){
+      var info=gData.items[0].volumeInfo;
+      var cover=(info.imageLinks&&(info.imageLinks.thumbnail||info.imageLinks.smallThumbnail)||"").replace("http://","https://");
+      if(cover||info.description) return{cover:cover,description:info.description||"",publisher:info.publisher||"",pageCount:info.pageCount||"",categories:(info.categories&&info.categories.join(", "))||"",rating:info.averageRating||""};
+    }
+  }catch(e){ console.log("Google Books skipped:", e.message); }
+
+  // Try Bengali/Hindi transliteration for Google Books
+  if(lang==="bengali"||lang==="hindi"){
+    var lc=lang==="bengali"?"bn-t-i0-und":"hi-t-i0-und";
+    try{
+      var tr=await transliterateToBengali(title,lc);
+      if(tr){
+        var gRes2=await fetch("https://www.googleapis.com/books/v1/volumes?q="+encodeURIComponent(tr+(authorStr?" "+authorStr:""))+"&maxResults=1&key=AIzaSyBoUncCrsulLahMbo8k_iND4Nvwe5pKyTA");
+        if(gRes2.status!==429){
+          var gData2=await gRes2.json();
+          if(gData2.items&&gData2.items.length){
+            var info2=gData2.items[0].volumeInfo;
+            var cover2=(info2.imageLinks&&(info2.imageLinks.thumbnail||info2.imageLinks.smallThumbnail)||"").replace("http://","https://");
+            if(cover2||info2.description) return{cover:cover2,description:info2.description||"",publisher:info2.publisher||"",pageCount:info2.pageCount||"",categories:(info2.categories&&info2.categories.join(", "))||"",rating:info2.averageRating||""};
+          }
+        }
+      }
+    }catch(e2){}
+  }
+
+  // Fall back to Open Library
+  try{
+    var olUrl="https://openlibrary.org/search.json?q="+encodeURIComponent(cleanQ)+"&limit=1&fields=title,cover_i,publisher,number_of_pages_median,subject,key";
+    var olRes=await fetch(olUrl);
+    var olData=await olRes.json();
+    if(olData.docs&&olData.docs.length){
+      var doc=olData.docs[0];
+      var coverId=doc.cover_i||null; var desc="";
+      if(doc.key){try{var wData=await(await fetch("https://openlibrary.org"+doc.key+".json")).json();desc=typeof wData.description==="string"?wData.description:(wData.description&&wData.description.value)||"";}catch(e3){}}
+      return{cover:coverId?"https://covers.openlibrary.org/b/id/"+coverId+"-M.jpg":"",description:desc,publisher:(doc.publisher&&doc.publisher[0])||"",pageCount:doc.number_of_pages_median||"",categories:(doc.subject&&doc.subject.slice(0,3).join(", "))||"",rating:""};
+    }
+  }catch(e4){ console.log("Open Library error:", e4.message); }
+
+  return {};
+}
+
+// ── Cover prompt ───────────────────────────────────────────────────────────────
+var coverPromptBookId=null,coverPromptQueue=[];
+function processNextCoverPrompt(){if(coverPromptQueue.length){var n=coverPromptQueue.shift();openCoverPrompt(n.id,n.title);}}
+function openCoverPrompt(bookId,bookTitle){coverPromptBookId=bookId;document.getElementById("cover-prompt-title").textContent=bookTitle;document.getElementById("cover-prompt-url").value="";document.getElementById("cover-prompt-thumb").style.display="none";document.getElementById("ov-cover-prompt").classList.add("open");}
+document.getElementById("cover-prompt-url").addEventListener("input",function(){var url=this.value.trim();var thumb=document.getElementById("cover-prompt-thumb");if(url){thumb.src=url;thumb.style.display="block";thumb.onerror=function(){thumb.style.display="none"};}else{thumb.style.display="none";}});
+function closeCoverPrompt(){document.getElementById("ov-cover-prompt").classList.remove("open");coverPromptBookId=null;if(coverPromptQueue.length)setTimeout(processNextCoverPrompt,300);}
+document.getElementById("cover-prompt-skip").addEventListener("click",closeCoverPrompt);
+document.getElementById("cover-prompt-skip2").addEventListener("click",closeCoverPrompt);
+document.getElementById("ov-cover-prompt").addEventListener("click",function(e){if(e.target===this)closeCoverPrompt();});
+document.getElementById("cover-prompt-save").addEventListener("click",async function(){
+  var url=document.getElementById("cover-prompt-url").value.trim();if(!url){closeCoverPrompt();return;}
+  var b=BOOKS.filter(function(b){return b.id===coverPromptBookId;})[0];if(!b){closeCoverPrompt();return;}
+  this.disabled=true;this.textContent="Saving…";b.cover=url;
+  try{await saveBook(b);saveToLocal();toast("Cover saved!");buildBookRows(document.getElementById("book-search").value.toLowerCase());}catch(e){alert("Error: "+e.message);}
+  this.disabled=false;this.innerHTML='<i class="ti ti-check"></i> Save cover';closeCoverPrompt();
+});
+
+// ── Book Details ───────────────────────────────────────────────────────────────
+function openBookDetails(bid){
+  var b=BOOKS.filter(function(b){return b.id===bid;})[0];if(!b)return;
+  var coverHTML=b.cover?'<img src="'+b.cover+'" alt="Cover" style="width:120px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);flex-shrink:0">'
+    :'<div style="width:120px;height:170px;border-radius:8px;background:var(--surface-1);border:0.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:40px">📚</div>';
+  var stars="";if(b.rating){var r=parseFloat(b.rating);for(var i=1;i<=5;i++)stars+=i<=Math.round(r)?"★":"☆";stars='<span style="color:#f59e0b;font-size:16px">'+stars+'</span> <span style="font-size:12px;color:var(--text-muted)">'+r+'/5</span>';}
+  var ov=document.createElement("div");ov.className="ov open";ov.style.zIndex="250";
+  ov.innerHTML='<div class="modal" style="width:520px"><div class="modal-head"><h3><i class="ti ti-info-circle"></i> Book details</h3><button class="iBtn" id="bd-close"><i class="ti ti-x"></i></button></div>'
+    +'<div style="display:flex;gap:1.25rem;margin-bottom:1.25rem">'+coverHTML
+    +'<div style="flex:1;min-width:0"><div style="font-size:17px;font-weight:700;line-height:1.3;margin-bottom:4px">'+b.title+'</div>'
+    +'<div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px">by '+b.author+'</div>'
+    +(stars?'<div style="margin-bottom:8px">'+stars+'</div>':'')
+    +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"><span class="idbadge">'+b.id+'</span>'
+    +(b.lang?'<span class="tag" style="font-size:11px;background:var(--bg-accent);color:var(--text-accent)">'+b.lang.charAt(0).toUpperCase()+b.lang.slice(1)+'</span>':'')
+    +(b.categories?'<span style="font-size:11px;color:var(--text-secondary);background:var(--surface-1);padding:2px 8px;border-radius:4px;border:0.5px solid var(--border)">'+b.categories+'</span>':'')
+    +'</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:12px;color:var(--text-secondary)">'
+    +(b.publisher?'<div><span style="font-weight:500;color:var(--text-primary)">Publisher:</span> '+b.publisher+'</div>':'')
+    +(b.pageCount?'<div><span style="font-weight:500;color:var(--text-primary)">Pages:</span> '+b.pageCount+'</div>':'')
+    +'</div></div></div>'
+    +(b.description?'<div style="border-top:0.5px solid var(--border);padding-top:1rem"><div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;text-transform:uppercase">About this book</div><div style="font-size:13px;color:var(--text-secondary);line-height:1.65;max-height:160px;overflow-y:auto">'+b.description.replace(/<[^>]*>/g,"")+'</div></div>'
+    :'<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:13px">No description available</div>')+'</div>';
+  document.body.appendChild(ov);
+  ov.querySelector("#bd-close").addEventListener("click",function(){ov.remove();});
+  ov.addEventListener("click",function(e){if(e.target===ov)ov.remove();});
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────────────
+var activeChatTarget="group";
+function fmtTime(iso){try{var d=new Date(iso);return d.toLocaleDateString("en-IN",{day:"numeric",month:"short"})+" "+d.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});}catch(e){return iso||"";}}
+function buildChat(target){
+  activeChatTarget=target||"group";var isAdmin=isAdminOrLibrarian();
+  document.getElementById("chat-chip-av").textContent=isAdmin?"AD":ini(session.member.name);
+  document.getElementById("chat-chip-name").textContent=isAdmin?(session.member?"Librarian":"Admin"):session.member.name;
+  var sb=document.getElementById("chat-sidebar");sb.innerHTML="";
+  var grp=document.createElement("div");grp.style.cssText="padding:0.75rem 1rem;cursor:pointer;font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border)";
+  grp.innerHTML='<div style="width:30px;height:30px;border-radius:50%;background:var(--bg-accent);display:flex;align-items:center;justify-content:center;font-size:14px">👥</div> Group Chat';
+  if(activeChatTarget==="group")grp.style.background="var(--bg-accent)";
+  grp.addEventListener("click",function(){buildChat("group");});sb.appendChild(grp);
+  if(isAdmin){
+    MEMBERS.forEach(function(m){
+      var div=document.createElement("div");div.style.cssText="padding:0.65rem 1rem;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border)";
+      var unread=MESSAGES.filter(function(msg){return msg.type==="private"&&msg.to==="admin"&&msg.senderId===m.id&&!msg.read;}).length;
+      div.innerHTML='<div style="width:30px;height:30px;border-radius:50%;background:var(--bg-success);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-success)">'+ini(m.name)+'</div><span style="flex:1">'+m.name+'</span>'+(unread?'<span style="background:var(--text-danger);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px">'+unread+'</span>':'');
+      if(activeChatTarget===m.id)div.style.background="var(--bg-accent)";
+      div.addEventListener("click",function(){buildChat(m.id);});sb.appendChild(div);
+    });
+  } else {
+    var adm=document.createElement("div");adm.style.cssText="padding:0.65rem 1rem;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid var(--border)";
+    var unread=MESSAGES.filter(function(msg){return msg.type==="private"&&msg.to===session.member.id&&msg.senderId==="admin"&&!msg.read;}).length;
+    adm.innerHTML='<div style="width:30px;height:30px;border-radius:50%;background:var(--bg-danger);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--text-danger)">AD</div><span style="flex:1">Admin</span>'+(unread?'<span style="background:var(--text-danger);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px">'+unread+'</span>':'');
+    if(activeChatTarget==="admin")adm.style.background="var(--bg-accent)";
+    adm.addEventListener("click",function(){buildChat("admin");});sb.appendChild(adm);
+  }
+  refreshChatMessages();
+  document.getElementById("chat-header").textContent=activeChatTarget==="group"?"👥 Group Chat":isAdmin?(MEMBERS.filter(function(m){return m.id===activeChatTarget;})[0]||{name:activeChatTarget}).name:"🔒 Admin (Private)";
+}
+function refreshChatMessages(){
+  var isAdmin=isAdminOrLibrarian();
+  var myId=!session.member?"admin":(session.librarianMode?"librarian-"+session.member.id:session.member.id);
+  var box=document.getElementById("chat-messages-box");if(!box)return;
+  var msgs=MESSAGES.filter(function(m){if(activeChatTarget==="group")return m.type==="group";if(isAdmin)return m.type==="private"&&(m.senderId===activeChatTarget||m.to===activeChatTarget||m.senderId==="librarian-"+activeChatTarget);return m.type==="private"&&((m.senderId===myId&&m.to==="admin")||(m.senderId==="admin"&&m.to===myId));});
+  box.innerHTML="";
+  if(!msgs.length){box.innerHTML='<div style="text-align:center;color:var(--text-muted);font-size:13px;margin-top:2rem">No messages yet. Say hello! 👋</div>';}
+  else{msgs.forEach(function(m){var isMine=m.senderId===myId;var bubble=document.createElement("div");bubble.style.cssText="display:flex;flex-direction:column;align-items:"+(isMine?"flex-end":"flex-start")+";margin-bottom:4px";bubble.innerHTML='<div style="font-size:10px;color:var(--text-muted);margin-bottom:2px">'+(isMine?"You":(m.senderName==="Admin"?'<span style="color:#dc2626;font-weight:600">Admin</span>':(m.senderName==="Librarian"?'<span style="color:#7c3aed;font-weight:600">Librarian</span>':m.senderName)))+'</div><div style="max-width:70%;padding:0.5rem 0.85rem;border-radius:12px;font-size:13px;line-height:1.5;'+(isMine?"background:var(--fill-accent);color:#fff;border-bottom-right-radius:3px":"background:#fff;border:0.5px solid var(--border);border-bottom-left-radius:3px")+'">'+m.text+'</div><div style="font-size:10px;color:var(--text-muted);margin-top:2px">'+fmtTime(m.createdOn)+'</div>';box.appendChild(bubble);});box.scrollTop=box.scrollHeight;}
+  msgs.forEach(function(m){if(m.senderId!==myId&&!m.read){m.read=true;db.collection("messages").doc(m.id).update({read:true}).catch(function(){});}});
+}
+document.getElementById("chat-back").addEventListener("click",goHome);
+document.getElementById("chat-logout").addEventListener("click",logout);
+document.getElementById("chat-send").addEventListener("click",sendChatMessage);
+document.getElementById("chat-input").addEventListener("keydown",function(e){if(e.key==="Enter")sendChatMessage();});
+async function sendChatMessage(){
+  var inp=document.getElementById("chat-input");var text=inp.value.trim();if(!text)return;
+  var myId=!session.member?"admin":(session.librarianMode?"librarian-"+session.member.id:session.member.id);var myName=!session.member?"Admin":(session.librarianMode?"Librarian":session.member.name);
+  var msg={id:"msg-"+Date.now(),senderId:myId,senderName:myName,text:text,type:activeChatTarget==="group"?"group":"private",to:activeChatTarget==="group"?null:(!session.member?activeChatTarget:(session.librarianMode?activeChatTarget:"admin")),read:false,createdOn:new Date().toISOString()};
+  inp.value="";
+  try{await sendMessage(msg);MESSAGES.push(msg);saveToLocal();refreshChatMessages();}catch(e){inp.value=text;alert("Failed: "+e.message);}
+}
+
+
+// ── PWA Install ───────────────────────────────────────────────────────────────
+var deferredInstallPrompt=null;
+window.addEventListener("beforeinstallprompt",function(e){
+  e.preventDefault();
+  deferredInstallPrompt=e;
+  document.getElementById("pwa-manual-hint").style.display="none";
+});
+// If no install prompt after 3 seconds, show manual hint
+setTimeout(function(){
+  if(!deferredInstallPrompt){
+    document.getElementById("pwa-manual-hint").style.display="block";
+  }
+},3000);
+document.getElementById("pwa-install-btn").addEventListener("click",async function(){
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  var result=await deferredInstallPrompt.userChoice;
+  if(result.outcome==="accepted") document.getElementById("pwa-install-bar").style.display="none";
+  deferredInstallPrompt=null;
+});
+window.addEventListener("appinstalled",function(){
+  document.getElementById("pwa-install-bar").style.display="none";
+  deferredInstallPrompt=null;
+});
+// Register service worker
+if("serviceWorker" in navigator){
+  window.addEventListener("load",function(){
+    navigator.serviceWorker.register("sw.js").then(function(){
+      console.log("SW registered");
+    }).catch(function(e){console.log("SW failed:",e);});
+  });
+}
+
+
+// ── Splash page ───────────────────────────────────────────────────────────────
+document.getElementById("splash-get-started").addEventListener("click",function(){
+  showPage("pg-login");
+});
+var splashDeferredPrompt=null;
+window.addEventListener("beforeinstallprompt",function(e){
+  e.preventDefault();
+  splashDeferredPrompt=e;
+  deferredInstallPrompt=e;
+});
+document.getElementById("splash-install-btn").addEventListener("click",async function(){
+  if(splashDeferredPrompt){
+    splashDeferredPrompt.prompt();
+    var result=await splashDeferredPrompt.userChoice;
+    splashDeferredPrompt=null;
+    if(result.outcome==="accepted") showPage("pg-login");
+  } else {
+    // Show manual hint
+    alert("To install: tap ⋮ (menu) in your browser → Add to Home Screen");
+  }
+});
+// If already installed as PWA, hide the install button on splash
+if(window.matchMedia("(display-mode: standalone)").matches){
+  document.getElementById("splash-install-btn").style.display="none";
+}
+
+
+// ── Signup page ───────────────────────────────────────────────────────────────
+document.getElementById("go-signup").addEventListener("click",function(){ showPage("pg-signup"); });
+document.getElementById("signup-back").addEventListener("click",function(){ showPage("pg-login"); });
+document.getElementById("su-submit").addEventListener("click",async function(){
+  var nameEl=document.getElementById("su-name"); if(!nameEl) return;
+  var name=nameEl.value.trim();
+  var age=(document.getElementById("su-age")||{value:""}).value.trim();
+  var bfEl=document.getElementById("su-bf-yes"); var bf=bfEl&&bfEl.checked?"yes":"no";
+  var address=(document.getElementById("su-address")||{value:""}).value.trim();
+  var mobile=(document.getElementById("su-mobile")&&document.getElementById("su-mobile").value.trim())||"";
+  var err=document.getElementById("signup-err");
+  var suc=document.getElementById("signup-success");
+  if(err) err.style.display="none"; if(suc) suc.style.display="none";
+  if(!name){if(err){err.textContent="Please enter your name.";err.style.display="block";}return;}
+  if(!address){if(err){err.textContent="Please enter your address.";err.style.display="block";}return;}
+  this.disabled=true; this.textContent="Submitting…";
+  var app={id:"app-"+Date.now(),name:name,age:age?parseInt(age):null,livesInBF:bf==="yes",address:address,mobile:mobile||"N/A",status:"pending",createdOn:td()};
+  try{
+    await saveMemberApp(app);
+    MEM_APPS.push(app); saveToLocal();
+    if(suc){suc.textContent="Application submitted! Admin will review and create your membership.";suc.style.display="block";}
+    document.getElementById("su-name").value="";
+    document.getElementById("su-age").value="";
+    document.getElementById("su-address").value="";
+    if(document.getElementById("su-mobile")) document.getElementById("su-mobile").value="";
+    buildCover();
+  } catch(e){ if(err){err.textContent="Error: "+e.message;err.style.display="block";}else{alert("Error: "+e.message);} }
+  this.disabled=false; this.innerHTML='<i class="ti ti-send"></i> Ask for membership status approval from Admin';
+});
+
+
+
+function isAdminOrLibrarian(){
+  return !session.member || (session.member && session.librarianMode);
+}
+
+// ── Librarian choice ──────────────────────────────────────────────────────────
+document.getElementById("lib-login-member").addEventListener("click",function(){
+  document.getElementById("ov-librarian-choice").classList.remove("open");
+  session.member=window._pendingMember;
+  session.librarianMode=false;
+  window._pendingMember=null;
+  updateChips(); buildCover(); showPage("pg-cover");
+});
+document.getElementById("lib-login-librarian").addEventListener("click",function(){
+  document.getElementById("ov-librarian-choice").classList.remove("open");
+  session.member=window._pendingMember;
+  session.librarianMode=true;
+  window._pendingMember=null;
+  updateChips(); buildCover(); showPage("pg-cover");
+});
+
+
+showPage("pg-splash");
+loadData();
+
+</script>
+</body>
+</html>
